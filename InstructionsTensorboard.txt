@@ -1,0 +1,9 @@
+In the py code, inside of the session:
+
+writer = tf.summary.FileWriter('./Tensorboard', sess.graph) 
+
+Once the code is executed and that file is saved in the 
+command prompt just write: 
+
+ tensorboard --logdir="./Tensorboard"
+
