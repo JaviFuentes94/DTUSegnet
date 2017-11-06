@@ -21,8 +21,14 @@ class SegNet(object):
 
         self.data_dict = np.load(segnet_npy_path, encoding='latin1').item()
         print("npy file loaded")
+        self.encoderbuilt = False
+        self.decoderbuilt = False
 
-    def build_without_decoder(self, im_rgb):
+    def build(self, im_rgb):
+        self.build_encoder(im_rgb)
+        self.build_decoder()
+
+    def build_encoder(self, im_rgb):
         """
         load variable from npy to build  SegNet without the decoder (i.e. VGG16 without dense layers)
 
@@ -34,7 +40,6 @@ class SegNet(object):
        
         im_bgr=rgb2bgr(im_rgb)
         
-
         self.convE1_1 = self.conv_layer(im_bgr, "conv1_1")
         self.convE1_2 = self.conv_layer(self.convE1_1, "conv1_2")
         self.pool1, self.pool1_indices = self.max_pool(self.convE1_2, 'pool1')
@@ -61,6 +66,47 @@ class SegNet(object):
         self.data_dict = None
         print(("build model finished: %ds" % (time.time() - start_time)))
 
+        self.encoderbuilt = True
+
+    def build_decoder(self):
+        """
+        load variable from npy to build encoder of SegNet 
+        """
+
+        if self.encoderbuilt == False:
+            print("Error: Encoder has to be built prior to the decoder")
+            return
+
+        start_time = time.time()
+        print("build encoder started")
+       
+        im_bgr=rgb2bgr(im_rgb)
+        
+        self.upsample1 = self.upsample_layer(self.pool5, "upsample_1")
+        self.convD1_1 = self.conv_layer_decoder(self.upsample1, "convD1_1")
+        self.convD1_2 = self.conv_layer_decoder(self.convD1_1, "convD1_2")
+
+        self.upsample2 = self.upsample_layer(self.convD1_2, "upsample_2")
+        self.convD2_1 = self.conv_layer_decoder(self.upsample2, "convD2_1")
+        self.convD2_2 = self.conv_layer_decoder(self.convD2_1, "convD2_2")
+
+        self.upsample3 = self.upsample_layer(self.convD2_2, "upsample_3")
+        self.convD3_1 = self.conv_layer_decoder(self.upsample3, "convD3_1")
+        self.convD3_2 = self.conv_layer_decoder(self.convD3_1, "convD3_2")
+        self.convD3_3 = self.conv_layer_decoder(self.convD3_2, "convD3_3")
+
+        self.upsample4 = self.upsample_layer(self.convD3_3, "upsample_4")
+        self.convD4_1 = self.conv_layer_decoder(self.upsample4, "convD4_1")
+        self.convD4_2 = self.conv_layer_decoder(self.convD4_1, "convD4_2")
+        self.convD4_3 = self.conv_layer_decoder(self.convD4_2, "convD4_3")
+
+        self.upsample5 = self.upsample_layer(self.convD4_3, "upsample_5")
+        self.convD5_1 = self.conv_layer_decoder(self.upsample5, "convD5_1")
+        self.convD5_2 = self.conv_layer_decoder(self.convD5_1, "convD5_2")
+        self.convD5_3 = self.conv_layer_decoder(self.convD5_2, "convD5_3")
+
+        self.data_dict = None
+        print(("build encoder finished: %ds" % (time.time() - start_time)))
 
 
     def max_pool(self, bottom, name):
@@ -78,10 +124,16 @@ class SegNet(object):
             relu = tf.nn.relu(bias)
             return relu
 
-
     def get_conv_filter(self, name):
         return tf.constant(self.data_dict[name][0], name="filter")
 
     def get_bias(self, name):
         return tf.constant(self.data_dict[name][1], name="biases")
+
+    def upsample_layer(self, bottom, name)
+        #To be impplemented
+        return
+
+    def conv_layer_decoder(self, bottom, name)
+        return
 
