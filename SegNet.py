@@ -21,6 +21,7 @@ class SegNet(object):
 
         self.data_dict = np.load(segnet_npy_path, encoding='latin1').item()
         print("npy file loaded")
+
         self.encoderbuilt = False
         self.decoderbuilt = False
 
@@ -78,35 +79,33 @@ class SegNet(object):
             return
 
         start_time = time.time()
-        print("build encoder started")
-       
-        im_bgr=rgb2bgr(im_rgb)
+
+        print("build decoder started")
         
         self.upsample1 = self.upsample_layer(self.pool5, "upsample_1")
-        self.convD1_1 = self.conv_layer_decoder(self.upsample1, "convD1_1")
-        self.convD1_2 = self.conv_layer_decoder(self.convD1_1, "convD1_2")
+        self.convD1_1 = self.conv_layer_decoder(self.upsample1, "convD1_1", 512)
+        self.convD1_2 = self.conv_layer_decoder(self.convD1_1, "convD1_2", 512)
+        self.convD1_3 = self.conv_layer_decoder(self.convD1_2, "convD1_3", 512)
 
-        self.upsample2 = self.upsample_layer(self.convD1_2, "upsample_2")
-        self.convD2_1 = self.conv_layer_decoder(self.upsample2, "convD2_1")
-        self.convD2_2 = self.conv_layer_decoder(self.convD2_1, "convD2_2")
+        self.upsample2 = self.upsample_layer(self.convD1_3, "upsample_2")
+        self.convD2_1 = self.conv_layer_decoder(self.upsample2, "convD2_1", 512)
+        self.convD2_2 = self.conv_layer_decoder(self.convD2_1, "convD2_2", 512)
+        self.convD2_3 = self.conv_layer_decoder(self.convD2_2, "convD2_3", 256)
 
-        self.upsample3 = self.upsample_layer(self.convD2_2, "upsample_3")
-        self.convD3_1 = self.conv_layer_decoder(self.upsample3, "convD3_1")
-        self.convD3_2 = self.conv_layer_decoder(self.convD3_1, "convD3_2")
-        self.convD3_3 = self.conv_layer_decoder(self.convD3_2, "convD3_3")
+        self.upsample3 = self.upsample_layer(self.convD2_3, "upsample_3")
+        self.convD3_1 = self.conv_layer_decoder(self.upsample3, "convD3_1", 256)
+        self.convD3_2 = self.conv_layer_decoder(self.convD3_1, "convD3_2", 256)
+        self.convD3_3 = self.conv_layer_decoder(self.convD3_2, "convD3_3", 128)
 
         self.upsample4 = self.upsample_layer(self.convD3_3, "upsample_4")
-        self.convD4_1 = self.conv_layer_decoder(self.upsample4, "convD4_1")
-        self.convD4_2 = self.conv_layer_decoder(self.convD4_1, "convD4_2")
-        self.convD4_3 = self.conv_layer_decoder(self.convD4_2, "convD4_3")
+        self.convD4_1 = self.conv_layer_decoder(self.upsample4, "convD4_1", 128)
+        self.convD4_2 = self.conv_layer_decoder(self.convD4_1, "convD4_2", 64)
 
-        self.upsample5 = self.upsample_layer(self.convD4_3, "upsample_5")
-        self.convD5_1 = self.conv_layer_decoder(self.upsample5, "convD5_1")
-        self.convD5_2 = self.conv_layer_decoder(self.convD5_1, "convD5_2")
-        self.convD5_3 = self.conv_layer_decoder(self.convD5_2, "convD5_3")
+        self.upsample5 = self.upsample_layer(self.convD4_2, "upsample_5")
+        self.convD5_1 = self.conv_layer_decoder(self.upsample5, "convD5_1", 64)
+        self.convD5_2 = self.conv_layer_decoder(self.convD5_1, "convD5_2", 3)
 
-        self.data_dict = None
-        print(("build encoder finished: %ds" % (time.time() - start_time)))
+        print(("build Decoder finished: %ds" % (time.time() - start_time)))
 
 
     def max_pool(self, bottom, name):
@@ -117,6 +116,9 @@ class SegNet(object):
             filt = self.get_conv_filter(name)
 
             conv = tf.nn.conv2d(bottom, filt, [1, 1, 1, 1], padding='SAME')
+
+            print(name)
+            print(filt.shape)
 
             conv_biases = self.get_bias(name)
             bias = tf.nn.bias_add(conv, conv_biases)
@@ -130,10 +132,17 @@ class SegNet(object):
     def get_bias(self, name):
         return tf.constant(self.data_dict[name][1], name="biases")
 
-    def upsample_layer(self, bottom, name)
-        #To be impplemented
-        return
-
-    def conv_layer_decoder(self, bottom, name)
-        return
-
+    def upsample_layer(self, bottom, name):
+        print("To be done")
+        return bottom
+ 
+    def conv_layer_decoder(self, bottom, name, size_out):
+        conv = tf.layers.conv2d(
+            inputs=bottom,
+            filters=size_out,
+            kernel_size=[3, 3],
+            padding="same",
+            use_bias=True,
+            bias_initializer=tf.zeros_initializer(),
+            activation=tf.nn.relu)
+        return conv

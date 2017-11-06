@@ -22,7 +22,7 @@ import utils
 images = tf.placeholder("float", [None, 224, 224, 3])
 
 segnet = sn.SegNet()
-segnet.build_without_decoder(images)
+segnet.build()
 
 print("\nConvolution 1_1 output")
 print(segnet.convE1_1.shape)
