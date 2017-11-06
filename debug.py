@@ -16,55 +16,59 @@ rel_path = "tensorflow-vgg"
 abs_file_path = os.path.join(script_dir, rel_path)
 sys.path.insert(0, abs_file_path)
 
-import vgg16
+import SegNet as sn
 import utils
 
 images = tf.placeholder("float", [None, 224, 224, 3])
 
-vgg = vgg16.Vgg16()
-vgg.build_without_dense(images)
-
+segnet = sn.SegNet()
+segnet.build_without_decoder(images)
 
 print("\nConvolution 1_1 output")
-print(vgg.conv1_1.shape)
+print(segnet.convE1_1.shape)
 print("Convolution 1_2 output")
-print(vgg.conv1_2.shape)
+print(segnet.convE1_2.shape)
 print("Pooling 1 output")
-print(vgg.pool1.shape)
+print(segnet.pool1.shape)
 
 print("\nConvolution 2_1 output")
-print(vgg.conv2_1.shape)
+print(segnet.convE2_1.shape)
 print("Convolution 2_2 output")
-print(vgg.conv2_2.shape)
+print(segnet.convE2_2.shape)
 print("Pooling 2 output")
-print(vgg.pool2.shape)
+print(segnet.pool2.shape)
 
 print("\nConvolution 3_1 output")
-print(vgg.conv3_1.shape)
+print(segnet.convE3_1.shape)
 print("Convolution 3_2 output")
-print(vgg.conv3_2.shape)
+print(segnet.convE3_2.shape)
 print("Convolution 3_3 output")
-print(vgg.conv3_3.shape)
+print(segnet.convE3_3.shape)
 print("Pooling 3 output")
-print(vgg.pool3.shape)
+print(segnet.pool3.shape)
 
 print("\nConvolution 4_1 output")
-print(vgg.conv4_1.shape)
+print(segnet.convE4_1.shape)
 print("Convolution 4_2 output")
-print(vgg.conv4_2.shape)
+print(segnet.convE4_2.shape)
 print("Convolution 4_3 output")
-print(vgg.conv4_3.shape)
+print(segnet.convE4_3.shape)
 print("Pooling 4 output")
-print(vgg.pool4.shape)
+print(segnet.pool4.shape)
 
 print("\nConvolution 5_1 output")
-print(vgg.conv5_1.shape)
+print(segnet.convE5_1.shape)
 print("Convolution 5_2 output")
-print(vgg.conv5_2.shape)
+print(segnet.convE5_2.shape)
 print("Convolution 5_3 output")
-print(vgg.conv5_3.shape)
+print(segnet.convE5_3.shape)
 print("Pooling 5 output")
-print(vgg.pool5.shape)
+print(segnet.pool5.shape)
+
+print("Pooling 5 indices")
+print(segnet.pool5_indices.shape)
+
+
 
 
 #Load images

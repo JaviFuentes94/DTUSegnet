@@ -1,6 +1,7 @@
 tensorflow-vgg/vgg16.npy
 DTUSegnet.pyproj
 DTUSegnet.sln
+debug.py
 Tensorboard/
 .vs/
 __pycache__/

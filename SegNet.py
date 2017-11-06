@@ -35,34 +35,36 @@ class SegNet(object):
         im_bgr=rgb2bgr(im_rgb)
         
 
-        self.convE1_1 = self.conv_layer(im_bgr, "convE1_1")
-        self.convE1_2 = self.conv_layer(self.convE1_1, "convE1_2")
-        self.pool1 = self.max_pool(self.convE1_2, 'pool1')
+        self.convE1_1 = self.conv_layer(im_bgr, "conv1_1")
+        self.convE1_2 = self.conv_layer(self.convE1_1, "conv1_2")
+        self.pool1, self.pool1_indices = self.max_pool(self.convE1_2, 'pool1')
 
-        self.convE2_1 = self.conv_layer(self.pool1, "convE2_1")
-        self.convE2_2 = self.conv_layer(self.convE2_1, "convE2_2")
-        self.pool2 = self.max_pool(self.convE2_2, 'pool2')
+        self.convE2_1 = self.conv_layer(self.pool1, "conv2_1")
+        self.convE2_2 = self.conv_layer(self.convE2_1, "conv2_2")
+        self.pool2, self.pool2_indices = self.max_pool(self.convE2_2, 'pool2')
 
-        self.convE3_1 = self.conv_layer(self.pool2, "convE3_1")
-        self.convE3_2 = self.conv_layer(self.convE3_1, "convE3_2")
-        self.convE3_3 = self.conv_layer(self.convE3_2, "convE3_3")
-        self.pool3 = self.max_pool(self.convE3_3, 'pool3')
+        self.convE3_1 = self.conv_layer(self.pool2, "conv3_1")
+        self.convE3_2 = self.conv_layer(self.convE3_1, "conv3_2")
+        self.convE3_3 = self.conv_layer(self.convE3_2, "conv3_3")
+        self.pool3, self.pool3_indices = self.max_pool(self.convE3_3, 'pool3')
 
-        self.convE4_1 = self.conv_layer(self.pool3, "convE4_1")
-        self.convE4_2 = self.conv_layer(self.convE4_1, "convE4_2")
-        self.convE4_3 = self.conv_layer(self.convE4_2, "convE4_3")
-        self.pool4 = self.max_pool(self.convE4_3, 'pool4')
+        self.convE4_1 = self.conv_layer(self.pool3, "conv4_1")
+        self.convE4_2 = self.conv_layer(self.convE4_1, "conv4_2")
+        self.convE4_3 = self.conv_layer(self.convE4_2, "conv4_3")
+        self.pool4, self.pool4_indices = self.max_pool(self.convE4_3, 'pool4')
 
-        self.convE5_1 = self.conv_layer(self.pool4, "convE5_1")
-        self.convE5_2 = self.conv_layer(self.convE5_1, "convE5_2")
-        self.convE5_3 = self.conv_layer(self.convE5_2, "convE5_3")
-        self.pool5 = self.max_pool(self.convE5_3, 'pool5')
+        self.convE5_1 = self.conv_layer(self.pool4, "conv5_1")
+        self.convE5_2 = self.conv_layer(self.convE5_1, "conv5_2")
+        self.convE5_3 = self.conv_layer(self.convE5_2, "conv5_3")
+        self.pool5, self.pool5_indices = self.max_pool(self.convE5_3, 'pool5')
 
         self.data_dict = None
         print(("build model finished: %ds" % (time.time() - start_time)))
 
+
+
     def max_pool(self, bottom, name):
-        return tf.nn.max_pool(bottom, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name=name)
+        return tf.nn.max_pool_with_argmax(bottom, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name=name)
 
     def conv_layer(self, bottom, name):
         with tf.variable_scope(name):
@@ -82,8 +84,4 @@ class SegNet(object):
 
     def get_bias(self, name):
         return tf.constant(self.data_dict[name][1], name="biases")
-
-
-
-
 
