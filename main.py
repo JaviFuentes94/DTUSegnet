@@ -16,23 +16,13 @@ rel_path = "tensorflow-vgg"
 abs_file_path = os.path.join(script_dir, rel_path)
 sys.path.insert(0, abs_file_path)
 
-import vgg16
+import SegNet as sn
 import utils
 
 images = tf.placeholder("float", [None, 224, 224, 3])
 
-vgg = vgg16.Vgg16()
-vgg.build(images)
-
-#Load images
-img1 = utils.load_image("./tensorflow-vgg/test_data/tiger.jpeg")
-img2 = utils.load_image("./tensorflow-vgg/test_data/puzzle.jpeg")
-
-#Reshape the images
-batch1 = img1.reshape((1, 224, 224, 3))
-batch2 = img2.reshape((1, 224, 224, 3))
-
-batch = np.concatenate((batch1, batch2), 0)
+segnet = sn.SegNet()
+segnet.build(images)
 
 with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu_memory_fraction=0.5)))) as sess:
 #with tf.device('/cpu:0'):
@@ -41,13 +31,9 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
 
     writer = tf.summary.FileWriter('./Tensorboard', sess.graph) #Saves the graph in the Tensorboard folder 
 
-    feed_dict = {images: batch}
+    #feed_dict = {images: batch}
 
-    vgg = vgg16.Vgg16()
-    with tf.name_scope("content_vgg"):
-        vgg.build(images)
+    segnet = sn.SegNet()
+    with tf.name_scope("SegNet"):
+        segnet.build(images)
     
-    #prob = sess.run(vgg.prob, feed_dict=feed_dict)
-    #print(prob)
-    #utils.print_prob(prob[0], './tensorflow-vgg/synset.txt')
-    #utils.print_prob(prob[1], './tensorflow-vgg/synset.txt')

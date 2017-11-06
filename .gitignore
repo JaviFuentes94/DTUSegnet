@@ -1,2 +1,6 @@
 tensorflow-vgg/vgg16.npy
-Tensorboard
+DTUSegnet.pyproj
+DTUSegnet.sln
+Tensorboard/
+.vs/
+__pycache__/
