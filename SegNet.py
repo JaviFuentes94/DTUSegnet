@@ -22,46 +22,6 @@ class SegNet(object):
         self.data_dict = np.load(segnet_npy_path, encoding='latin1').item()
         print("npy file loaded")
 
-        
-    def build(self, im_rgb):
-        """
-        load the whole SegNet model
-
-        :param rgb: rgb image [batch, height, width, 3] values scaled [0, 1]. Usually a placeholder. 
-        """
-
-        start_time = time.time()
-        print("build model started")
-       
-        im_bgr=rgb2bgr(im_rgb)
-        
-
-        self.convE1_1 = self.conv_layer(im_bgr, "conv1_1")
-        self.convE1_2 = self.conv_layer(self.convE1_1, "conv1_2")
-        self.pool1 = self.max_pool(self.convE1_2, 'pool1')
-
-        self.convE2_1 = self.conv_layer(self.pool1, "conv2_1")
-        self.convE2_2 = self.conv_layer(self.convE2_1, "conv2_2")
-        self.pool2 = self.max_pool(self.convE2_2, 'pool2')
-
-        self.convE3_1 = self.conv_layer(self.pool2, "conv3_1")
-        self.convE3_2 = self.conv_layer(self.convE3_1, "conv3_2")
-        self.convE3_3 = self.conv_layer(self.convE3_2, "conv3_3")
-        self.pool3 = self.max_pool(self.convE3_3, 'pool3')
-
-        self.convE4_1 = self.conv_layer(self.pool3, "conv4_1")
-        self.convE4_2 = self.conv_layer(self.convE4_1, "conv4_2")
-        self.convE4_3 = self.conv_layer(self.convE4_2, "conv4_3")
-        self.pool4 = self.max_pool(self.convE4_3, 'pool4')
-
-        self.convE5_1 = self.conv_layer(self.pool4, "conv5_1")
-        self.convE5_2 = self.conv_layer(self.convE5_1, "conv5_2")
-        self.convE5_3 = self.conv_layer(self.convE5_2, "conv5_3")
-        self.pool5 = self.max_pool(self.convE5_3, 'pool5')
-
-        self.data_dict = None
-        print(("build model finished: %ds" % (time.time() - start_time)))
-
     def build_without_decoder(self, im_rgb):
         """
         load variable from npy to build  SegNet without the decoder (i.e. VGG16 without dense layers)
