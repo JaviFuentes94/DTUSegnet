@@ -11,7 +11,11 @@ with tf.variable_scope('loss'):
     	
     	#I believe using that one the labels will have to be in [widthxheight] shape
     	#instead of 3d [widthxheightxclassnum]
-    	cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels, predictions)
+    	cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels, logits=predictions)
+
+    	# Sum over all pixels
+		cross_entropy = tf.reduce_sum(cross_entropy, [1, 2])
+
     	# Average over samples
     	# Averaging makes the loss invariant to batch size, which is very nice.
     	cross_entropy = tf.reduce_mean(cross_entropy)
