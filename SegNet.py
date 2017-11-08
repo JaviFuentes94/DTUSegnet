@@ -1,4 +1,4 @@
-import inspect
+ import inspect
 import os
 
 import numpy as np
@@ -105,8 +105,14 @@ class SegNet(object):
         self.convD5_1 = self.conv_layer_decoder(self.upsample5, "convD5_1", 64)
         self.convD5_2 = self.conv_layer_decoder(self.convD5_1, "convD5_2", 3)
 
-        print(("build Decoder finished: %ds" % (time.time() - start_time)))
+        #Calculate softmax - this might be not used as we use softmax_cross_entropy_with_logits
+        #for loss calculation
+        softmax = tf.nn.softmax(self.convD5_2)
 
+        #Create an image with classicifactions might be not neccessary as well
+        argmax = tf.argmax(softmax, 3)
+
+        print(("build Decoder finished: %ds" % (time.time() - start_time)))
 
     def max_pool(self, bottom, name):
         return tf.nn.max_pool_with_argmax(bottom, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name=name)
