@@ -21,7 +21,7 @@ import utils
 
 images = tf.placeholder("float", [None, 224, 224, 3])
 
-segnet = sn.SegNet()
+segnet = sn.SegNet(num_class = 10)
 segnet.build(images)
 
 with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu_memory_fraction=0.5)))) as sess:

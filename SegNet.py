@@ -7,7 +7,7 @@ import time
 
 from utils import rgb2bgr
 
-class SegNet(object):
+class SegNet(object, num_class):
     """Builds the SegNet model"""
     def __init__(self, segnet_npy_path=None):
 
@@ -21,6 +21,8 @@ class SegNet(object):
 
         self.data_dict = np.load(segnet_npy_path, encoding='latin1').item()
         print("npy file loaded")
+
+        self.num_class = num_class
 
         self.encoderbuilt = False
         self.decoderbuilt = False
@@ -103,7 +105,7 @@ class SegNet(object):
 
         self.upsample5 = self.upsample_layer(self.convD4_2, "upsample_5")
         self.convD5_1 = self.conv_layer_decoder(self.upsample5, "convD5_1", 64)
-        self.convD5_2 = self.conv_layer_decoder(self.convD5_1, "convD5_2", 3)
+        self.convD5_2 = self.conv_layer_decoder(self.convD5_1, "convD5_2", self.num_class)
 
         #Calculate softmax - this might be not used as we use softmax_cross_entropy_with_logits
         #for loss calculation
