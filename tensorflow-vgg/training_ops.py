@@ -7,7 +7,11 @@
 with tf.variable_scope('loss'):
     def calc_loss(predictions, labels)
     	# computing cross entropy per sample, use softmax_cross_entropy_with_logits to avoid problems with log(0) 
-    	cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels, predictions)
+    	#cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels, predictions)
+    	
+    	#I believe using that one the labels will have to be in [widthxheight] shape
+    	#instead of 3d [widthxheightxclassnum]
+    	cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels, predictions)
     	# Average over samples
     	# Averaging makes the loss invariant to batch size, which is very nice.
     	cross_entropy = tf.reduce_mean(cross_entropy)
