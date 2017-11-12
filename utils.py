@@ -86,5 +86,6 @@ def rgb2bgr(rgb):
         assert bgr.get_shape().as_list()[1:] == [224, 224, 3]
         return bgr
 
+
 if __name__ == "__main__":
     test()

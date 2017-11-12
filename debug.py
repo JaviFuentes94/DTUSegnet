@@ -21,8 +21,8 @@ import utils
 
 images = tf.placeholder("float", [None, 224, 224, 3])
 
-segnet = sn.SegNet()
-segnet.build()
+segnet = sn.SegNet(num_class = 10)
+segnet.build(images)
 
 print("\nConvolution 1_1 output")
 print(segnet.convE1_1.shape)
@@ -65,8 +65,8 @@ print(segnet.convE5_3.shape)
 print("Pooling 5 output")
 print(segnet.pool5.shape)
 
-print("Pooling 5 indices")
-print(segnet.pool5_indices.shape)
+#print("Pooling 5 indices")
+#print(segnet.pool5_indices.shape)
 
 
 

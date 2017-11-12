@@ -19,6 +19,8 @@ sys.path.insert(0, abs_file_path)
 import SegNet as sn
 import utils
 
+sess = tf.InteractiveSession()
+
 images = tf.placeholder("float", [None, 224, 224, 3])
 
 segnet = sn.SegNet(num_class = 10)

@@ -2,7 +2,7 @@
 Implementation of SegNet for the Deep Learning course in DTU. 
 Changes
 
-#Instructions Tensorboard
+## Instructions Tensorboard
 
 In the py code, inside of the session:
 
