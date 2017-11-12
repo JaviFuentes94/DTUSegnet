@@ -112,10 +112,14 @@ class SegNet(object):
 
         #Calculate softmax - this might be not used as we use softmax_cross_entropy_with_logits
         #for loss calculation
-        softmax = tf.nn.softmax(self.convD5_2)
+        #this for each pixel goes through num_class classes
+        with tf.name_scope("softmax"):
+            softmax = tf.nn.softmax(self.convD5_2)
 
         #Create an image with classicifactions might be not neccessary as well
-        argmax = tf.argmax(softmax, 3)
+        #this for each pixel returns the class with biggest probability
+        with tf.name_scope("argmax"):
+            argmax = tf.argmax(softmax, 3)
 
         print(("build Decoder finished: %ds" % (time.time() - start_time)))
 
@@ -148,7 +152,8 @@ class SegNet(object):
             padding="same",
             use_bias=True,
             bias_initializer=tf.zeros_initializer(),
-            activation=tf.nn.relu)
+            activation=tf.nn.relu,
+            name = name)
 
         print(name)
         print(conv.shape)

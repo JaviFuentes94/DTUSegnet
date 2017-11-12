@@ -32,10 +32,3 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
     #images = tf.placeholder("float", [2, 224, 224, 3])
 
     writer = tf.summary.FileWriter('./Tensorboard', sess.graph) #Saves the graph in the Tensorboard folder 
-
-    #feed_dict = {images: batch}
-
-    segnet = sn.SegNet()
-    with tf.name_scope("SegNet"):
-        segnet.build(images)
-    
