@@ -145,12 +145,14 @@ class SegNet(object):
         return tf.constant(self.data_dict[name][1], name="biases")
 
     def conv_layer_decoder(self, bottom, name, size_out):
+        #Added weight initialization as described in the paper 
         conv = tf.layers.conv2d(
             inputs=bottom,
             filters=size_out,
             kernel_size=[3, 3],
             padding="same",
             use_bias=True,
+            kernel_initializer=tf.contrib.layers.variance_scaling_initializer(),
             bias_initializer=tf.zeros_initializer(),
             activation=tf.nn.relu,
             name = name)

@@ -26,9 +26,12 @@ def calc_accuracy(predictions, labels)
 # 3) Define the training op
 def train_network(loss)
 	# Defining our optimizer
-	optimizer = tf.train.AdamOptimizer(learning_rate=1e-4)
-	# Computing our gradients
+	optimizer = tf.train.MomentumOptimizer(learning_rate=0.1, momentum=0.9)
+    #optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.1)
+	
+    # Computing our gradients
 	grads_and_vars = optimizer.compute_gradients(loss)
-	# Applying the gradients
+	
+    # Applying the gradients
 	train_op = optimizer.apply_gradients(grads_and_vars)
 	return train_op
