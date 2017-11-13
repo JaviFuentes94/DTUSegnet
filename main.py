@@ -30,7 +30,8 @@ imgIn = imgIn.reshape((1, 224, 224, 3))
 labels_ph= tf.placeholder(tf.int32, [None, 224, 224])
 imgLabel = utils.load_image(".\\Data\\labels\\Gray_labels2\\0001TP_006720.png")
 imgLabel = imgLabel.reshape((1, 224, 224))
-#gray_to_RGB(skimage.img_as_int(imgLabel),"Label.png")
+
+gray_to_RGB(skimage.img_as_int(imgLabel),"Label.png")
 
 segnet = sn.SegNet(num_class = 12)
 segnet.build(images_ph)
