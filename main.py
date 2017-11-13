@@ -22,13 +22,17 @@ import utils
 sess = tf.InteractiveSession()
 
 images = tf.placeholder("float", [None, 224, 224, 3])
+img1 = utils.load_image("./Data/images/0001TP_006690.png")
+batch = img1.reshape((1, 224, 224, 3))
 
 segnet = sn.SegNet(num_class = 10)
 segnet.build(images)
 
 with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu_memory_fraction=0.5)))) as sess:
 #with tf.device('/cpu:0'):
-#    with tf.Session() as sess:    
+#    with tf.Session() as sess:
     #images = tf.placeholder("float", [2, 224, 224, 3])
-
-    writer = tf.summary.FileWriter('./Tensorboard', sess.graph) #Saves the graph in the Tensorboard folder 
+    #writer = tf.summary.FileWriter('./Tensorboard', sess.graph) #Saves the graph in the Tensorboard folder
+    feed_dict = {images: batch}
+    result = sess.run(segnet.argmax, feed_dict=feed_dict)
+    print(result)

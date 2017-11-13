@@ -43,9 +43,9 @@ class SegNet(object):
 
         start_time = time.time()
         print("build model started")
-       
+
         im_bgr=rgb2bgr(im_rgb)
-        
+
         self.convE1_1 = self.conv_layer(im_bgr, "conv1_1")
         self.convE1_2 = self.conv_layer(self.convE1_1, "conv1_2")
         self.pool1= self.pool.max_pool(self.convE1_2, 'pool1')
@@ -76,7 +76,7 @@ class SegNet(object):
 
     def build_decoder(self):
         """
-        load variable from npy to build encoder of SegNet 
+        load variable from npy to build encoder of SegNet
         """
 
         if self.encoderbuilt == False:
@@ -86,7 +86,7 @@ class SegNet(object):
         start_time = time.time()
 
         print("build decoder started")
-        
+
         self.upsample1 = self.pool.unpool(self.pool5,'pool5',"upsample_1")
         self.convD1_1 = self.conv_layer_decoder(self.upsample1, "convD1_1", 512)
         self.convD1_2 = self.conv_layer_decoder(self.convD1_1, "convD1_2", 512)
@@ -114,12 +114,12 @@ class SegNet(object):
         #for loss calculation
         #this for each pixel goes through num_class classes
         with tf.name_scope("softmax"):
-            softmax = tf.nn.softmax(self.convD5_2)
+            self.softmax = tf.nn.softmax(self.convD5_2)
 
         #Create an image with classicifactions might be not neccessary as well
         #this for each pixel returns the class with biggest probability
         with tf.name_scope("argmax"):
-            argmax = tf.argmax(softmax, 3)
+            self.argmax = tf.argmax(self.softmax, 3)
 
         print(("build Decoder finished: %ds" % (time.time() - start_time)))
 
@@ -145,7 +145,7 @@ class SegNet(object):
         return tf.constant(self.data_dict[name][1], name="biases")
 
     def conv_layer_decoder(self, bottom, name, size_out):
-        #Added weight initialization as described in the paper 
+        #Added weight initialization as described in the paper
         conv = tf.layers.conv2d(
             inputs=bottom,
             filters=size_out,
@@ -160,5 +160,3 @@ class SegNet(object):
         print(name)
         print(conv.shape)
         return conv
-
-    
