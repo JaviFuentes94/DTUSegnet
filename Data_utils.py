@@ -73,21 +73,7 @@ def gray_to_RGB_from_path(image_path):
             RGB_img[i,j,] = colors[label]
     misc.imsave("test.png", RGB_img)
 
-def gray_to_RGB(img, name="test.png"):
-    with open("Data\\class.txt") as file:
-        colors = []
-        for line in file.readlines():
-            l = line.split()
-            colors.append((l[0],l[1],l[2]))
 
-    #img = Image.fromarray(img, "L")
-    gray_img = img
-    shape = gray_img.shape
-    RGB_img = np.zeros((shape[0],shape[1],3))
-    for i,row in enumerate(gray_img):
-        for j,label in enumerate(row):
-            RGB_img[i,j,] = colors[label]
-    misc.imsave(name, RGB_img)
 
 #gray_to_RGB("./labels/0001TP_006690.png")
 #get_class_frequencies_and_weights()

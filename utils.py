@@ -3,6 +3,9 @@ import skimage.io
 import skimage.transform
 import numpy as np
 import tensorflow as tf
+from scipy import misc
+import matplotlib.pyplot as plt
+
 
 VGG_MEAN = [103.939, 116.779, 123.68]
 # synset = [l.strip() for l in open('synset.txt').readlines()]
@@ -10,9 +13,10 @@ VGG_MEAN = [103.939, 116.779, 123.68]
 
 # returns image of shape [224, 224, 3]
 # [height, width, depth]
-def load_image(path):
+def load_image_input(path):
     # load image
     img = skimage.io.imread(path)
+    #Why do we need to scale it?
     img = img / 255.0
     assert (0 <= img).all() and (img <= 1.0).all()
     # print "Original Image Shape: ", img.shape
@@ -23,9 +27,56 @@ def load_image(path):
     crop_img = img[yy: yy + short_edge, xx: xx + short_edge]
     # resize to 224, 224
     resized_img = skimage.transform.resize(crop_img, (224, 224))
+    #show_image(resized_img)
+
+    return resized_img
+
+def load_image_labels(path):
+    '''Load the labels image without scaling'''
+    img = skimage.io.imread(path)
+
+    short_edge = min(img.shape[:2])
+    yy = int((img.shape[0] - short_edge) / 2)
+    xx = int((img.shape[1] - short_edge) / 2)
+    crop_img = img[yy: yy + short_edge, xx: xx + short_edge]
+    # resize to 224, 224
+    resized_img = skimage.transform.resize(crop_img, (224, 224))
+    resized_img = skimage.transform.resize(crop_img, (224, 224))
+    #show_image(resized_img)
+
     return resized_img
 
 
+def show_image(img):
+
+    print('image shape')
+    print(img.shape)
+    print('Image type')
+    print(img.dtype)
+    print('Image content')
+    print(img)
+    plt.imshow(img)
+    plt.show()
+    return img
+
+
+def gray_to_RGB(img, name="test.png"):
+    img=skimage.img_as_int(img)[0]
+    with open("Data\\class.txt") as file:
+        colors = []
+        for line in file.readlines():
+            l = line.split()
+            colors.append((l[0],l[1],l[2]))
+
+    #img = Image.fromarray(img, "L")
+    gray_img = img
+    shape = gray_img.shape
+    RGB_img = np.zeros((shape[0],shape[1],3))
+    for i,row in enumerate(gray_img):
+        for j,label in enumerate(row):
+            RGB_img[i,j,] = colors[label]
+    misc.imsave(name, RGB_img)
+    
 # returns the top1 string
 def print_prob(prob, file_path):
     synset = [l.strip() for l in open(file_path).readlines()]
