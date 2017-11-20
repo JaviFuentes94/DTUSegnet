@@ -42,7 +42,9 @@ def load_image_labels(path):
     # resize to 224, 224
     resized_img = skimage.transform.resize(crop_img, (224, 224))
     resized_img = skimage.transform.resize(crop_img, (224, 224))
-    #show_image(resized_img)
+    show_image(resized_img)
+
+    resized_img = resized_img * 255
 
     return resized_img
 

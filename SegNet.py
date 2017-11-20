@@ -114,12 +114,12 @@ class SegNet(object):
         #for loss calculation
         #this for each pixel goes through num_class classes
         with tf.name_scope("softmax"):
-            self.softmax = tf.nn.softmax(self.convD5_2)
+            self.softmax_layer = tf.nn.softmax(self.convD5_2)
 
         #Create an image with classicifactions might be not neccessary as well
         #this for each pixel returns the class with biggest probability
         with tf.name_scope("argmax"):
-            self.argmax = tf.argmax(self.softmax, 3)
+            self.argmax_layer = tf.argmax(self.softmax_layer, 3)
 
         print(("build Decoder finished: %ds" % (time.time() - start_time)))
 
@@ -153,11 +153,10 @@ class SegNet(object):
                 kernel_size=[3, 3],
                 padding="same",
                 use_bias=True,
-                #kernel_initializer=tf.contrib.layers.variance_scaling_initializer(),
+                kernel_initializer=tf.contrib.layers.variance_scaling_initializer(),
                 bias_initializer=tf.zeros_initializer(),
                 activation=tf.nn.relu,
                 name = name)
-
             print(name)
             print(conv.shape)
             return conv
