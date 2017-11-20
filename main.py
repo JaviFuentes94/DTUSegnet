@@ -39,7 +39,7 @@ segnet = sn.SegNet(num_class = 12 )
 segnet.build(images_ph)
 
 loss_op = training_ops.calc_loss(segnet.convD5_2, labels_ph)
-train_op = training_ops.train_network(loss_op) 
+train_op = training_ops.train_network(loss_op)
 acc_op = training_ops.calc_accuracy(segnet.argmax_layer, labels_ph)
 
 init =  tf.global_variables_initializer()
@@ -50,9 +50,9 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
     merged = tf.summary.merge_all()
     tesnorboard_writer = tf.summary.FileWriter(tensorboard_path, sess.graph) #Saves the graph in the Tensorboard folder
     sess.run(init)
+
     for i in range(5000):
-        
-        
+
         feed_test = {images_ph: imgIn}
         img = sess.run(segnet.argmax_layer, feed_dict=feed_test)
         
@@ -72,9 +72,8 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
         
         feed_dict = {images_ph: imgIn, labels_ph: imgLabel}
         fetches_train = [train_op, loss_op, acc_op]
-            
+
         res = sess.run(fetches = fetches_train, feed_dict=feed_dict)
-        
         #print("Train WTF "+res[0])
         # print("Loss")
         # print(res[1])
@@ -84,4 +83,3 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
         #utils.gray_to_RGB(img[0])
 
     utils.show_image(img[0])
-        

@@ -56,19 +56,5 @@ def get_class_frequencies_and_weights():
                 for i,c in enumerate(labels):
                     class_frequencies.write(c[0]+ ' ' + str(freq[i])+'\n')
                     class_weights.write(c[0]+ ' ' + str(weights[i])+'\n')
-def gray_to_RGB(image_path):
-    with open("class.txt") as file:
-        colors = []
-        for line in file.readlines():
-            l = line.split()
-            colors.append((l[0],l[1],l[2]))
-    gray_img = misc.imread(image_path)
-    shape = gray_img.shape
-    RGB_img = np.zeros((shape[0],shape[1],3))
-    for i,row in enumerate(gray_img):
-        for j,label in enumerate(row):
-            RGB_img[i,j,] = colors[label]
-    misc.imsave("test.png", RGB_img)
-
-gray_to_RGB("./labels/0001TP_006690.png")
+#get_class_count()
 #get_class_frequencies_and_weights()
