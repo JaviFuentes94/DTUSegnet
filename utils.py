@@ -51,20 +51,21 @@ def load_image_labels(path):
 
 def show_image(img):
 
-    print('image shape')
-    print(img.shape)
-    print('Image type')
-    print(img.dtype)
-    print('Image content')
-    print(img)
+    # print('image shape')
+    # print(img.shape)
+    # print('Image type')
+    # print(img.dtype)
+    # print('Image content')
+    # print(img)
+    img = gray_to_RGB(img)
+    skimage.io.imsave(".\\Data\\test.png", img)
     plt.imshow(img)
     plt.show()
     return img
 
 
-def gray_to_RGB(img, name="test.png"):
-    img=skimage.img_as_int(img)[0]
-    with open("Data\\class.txt") as file:
+def gray_to_RGB(img):
+    with open("Data\\colors.txt") as file:
         colors = []
         for line in file.readlines():
             l = line.split()
@@ -73,12 +74,12 @@ def gray_to_RGB(img, name="test.png"):
     #img = Image.fromarray(img, "L")
     gray_img = img
     shape = gray_img.shape
-    RGB_img = np.zeros((shape[0],shape[1],3))
+    RGB_img = np.zeros((shape[0],shape[1],3),dtype=np.uint8)
     for i,row in enumerate(gray_img):
         for j,label in enumerate(row):
             RGB_img[i,j,] = colors[label]
-    misc.imsave(name, RGB_img)
-    
+    return RGB_img
+
 # returns the top1 string
 def print_prob(prob, file_path):
     synset = [l.strip() for l in open(file_path).readlines()]
@@ -115,11 +116,14 @@ def load_image2(path, height=None, width=None):
 
 
 def test():
-    img = skimage.io.imread("./test_data/starry_night.jpg")
-    ny = 300
-    nx = img.shape[1] * ny / img.shape[0]
-    img = skimage.transform.resize(img, (ny, nx))
-    skimage.io.imsave("./test_data/test/output.jpg", img)
+    img = skimage.io.imread(".\\Data\\labels\\0006R0_f02070.png")
+    show_image(img)
+    #img = skimage.io.imread("./Data/0001TP_006720_L.png")
+    #plt.imshow(img)
+    # ny = 300
+    # nx = img.shape[1] * ny / img.shape[0]
+    # img = skimage.transform.resize(img, (ny, nx))
+    # skimage.io.imsave("./test_data/test/output.jpg", img)
 
 def rgb2bgr(rgb):
     ''' It converts from rgb to bgr. Not sure why is it necesary tho '''
