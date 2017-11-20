@@ -7,7 +7,7 @@ Created on Wed Oct 25 22:17:52 2017
 
 import tensorflow as tf
 import numpy as np
-
+import time
 import os
 import sys
 
@@ -20,14 +20,17 @@ import SegNet as sn
 import utils
 import training_ops
 
+
+timestr = time.strftime("%Y%m%d-%H%M%S")
+tensorboard_path=os.path.join("./Tensorboard", timestr)
 #sess = tf.InteractiveSession()
 
 images_ph = tf.placeholder(tf.float32, [None, 224, 224, 3])
-imgIn = utils.load_image_input(".\\Data\\images\\0001TP_006720.png")
+imgIn = utils.load_image_input(".\\Data\\images\\0001TP_007140.png")
 imgIn = imgIn.reshape((1, 224, 224, 3))
 
 labels_ph= tf.placeholder(tf.int32, [None, 224, 224])
-imgLabel = utils.load_image_labels(".\\Data\\labels\\0001TP_006720.png")
+imgLabel = utils.load_image_labels(".\\Data\\labels\\0001TP_007140.png")
 imgLabel = imgLabel.reshape((1, 224, 224))
 
 #utils.gray_to_RGB(imgLabel,"Label.png")
@@ -44,37 +47,41 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
 #with tf.device('/cpu:0'):
 #    with tf.Session() as sess:
     #images = tf.placeholder("float", [2, 224, 224, 3])
-    writer = tf.summary.FileWriter('./Tensorboard', sess.graph) #Saves the graph in the Tensorboard folder
+    merged = tf.summary.merge_all()
+    tesnorboard_writer = tf.summary.FileWriter(tensorboard_path, sess.graph) #Saves the graph in the Tensorboard folder
     sess.run(init)
-    for i in range(1000):
+    for i in range(5000):
         
-
+        
         feed_test = {images_ph: imgIn}
         img = sess.run(segnet.argmax_layer, feed_dict=feed_test)
-
-        if (i%10)==0:
-            utils.show_image(img[0])
-
+        
+        #if (i%10)==0:
+            #utils.show_image(img[0])
+        
         #DEBUG
-        fetches_test = [loss_op, acc_op]
+        fetches_test = [merged, loss_op, acc_op]
         feed_test2 = {images_ph: imgIn, labels_ph: imgLabel}
-        res = sess.run(fetches_test, feed_dict=feed_test2)
+        summary, res0, res1 = sess.run(fetches_test, feed_dict=feed_test2)
         print("Test loss")
-        print(res[0])
+        print(res0)
         print("Test accuracy")
-        print(res[1])
+        print(res1)
+        tesnorboard_writer.add_summary(summary,i)
         #DEBUG
-
+        
         feed_dict = {images_ph: imgIn, labels_ph: imgLabel}
         fetches_train = [train_op, loss_op, acc_op]
             
         res = sess.run(fetches = fetches_train, feed_dict=feed_dict)
-    
+        
         #print("Train WTF "+res[0])
         # print("Loss")
         # print(res[1])
         # print("Accuracy")
         # print(res[2])
-
+        
         #utils.gray_to_RGB(img[0])
+
+    utils.show_image(img[0])
         
