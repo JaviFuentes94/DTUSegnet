@@ -42,10 +42,10 @@ def load_image_labels(path):
     # resize to 224, 224
     resized_img = skimage.transform.resize(crop_img, (224, 224))
     resized_img = skimage.transform.resize(crop_img, (224, 224))
-    show_image(resized_img)
+    #show_image(resized_img)
 
     resized_img = resized_img * 255
-
+    show_image(resized_img)
     return resized_img
 
 
@@ -58,14 +58,13 @@ def show_image(img):
     # print('Image content')
     # print(img)
     img = gray_to_RGB(img)
-    skimage.io.imsave(".\\Data\\test.png", img)
     plt.imshow(img)
     plt.show()
     return img
 
 
 def gray_to_RGB(img):
-    with open("Data\\colors.txt") as file:
+    with open("Data/colors.txt") as file:
         colors = []
         for line in file.readlines():
             l = line.split()
@@ -77,6 +76,7 @@ def gray_to_RGB(img):
     RGB_img = np.zeros((shape[0],shape[1],3),dtype=np.uint8)
     for i,row in enumerate(gray_img):
         for j,label in enumerate(row):
+            label = int(label)
             RGB_img[i,j,] = colors[label]
     return RGB_img
 
@@ -116,7 +116,7 @@ def load_image2(path, height=None, width=None):
 
 
 def test():
-    img = skimage.io.imread(".\\Data\\labels\\0006R0_f02070.png")
+    img = skimage.io.imread("./Data/labels/0006R0_f02070.png")
     show_image(img)
     #img = skimage.io.imread("./Data/0001TP_006720_L.png")
     #plt.imshow(img)
