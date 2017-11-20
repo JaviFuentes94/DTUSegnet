@@ -48,7 +48,7 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
 #    with tf.Session() as sess:
     #images = tf.placeholder("float", [2, 224, 224, 3])
     merged = tf.summary.merge_all()
-    tesnorboard_writer = tf.summary.FileWriter(tensorboard_path, sess.graph) #Saves the graph in the Tensorboard folder
+    tensorboard_writer = tf.summary.FileWriter(tensorboard_path, sess.graph) #Saves the graph in the Tensorboard folder
     sess.run(init)
 
     for i in range(5000):
@@ -60,26 +60,25 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
             #utils.show_image(img[0])
         
         #DEBUG
-        fetches_test = [merged, loss_op, acc_op]
+        fetches_test = [loss_op, acc_op]
         feed_test2 = {images_ph: imgIn, labels_ph: imgLabel}
-        summary, res0, res1 = sess.run(fetches_test, feed_dict=feed_test2)
+        res = sess.run(fetches_test, feed_dict=feed_test2)
         print("Test loss")
-        print(res0)
+        print(res[0])
         print("Test accuracy")
-        print(res1)
-        tesnorboard_writer.add_summary(summary,i)
+        print(res[1])
+        
         #DEBUG
         
         feed_dict = {images_ph: imgIn, labels_ph: imgLabel}
-        fetches_train = [train_op, loss_op, acc_op]
-
-        res = sess.run(fetches = fetches_train, feed_dict=feed_dict)
+        fetches_train = [merged, train_op, loss_op, acc_op]
+        summary, _ , _, _ = sess.run(fetches = fetches_train, feed_dict=feed_dict)
+        tensorboard_writer.add_summary(summary,i)
         #print("Train WTF "+res[0])
         # print("Loss")
         # print(res[1])
         # print("Accuracy")
         # print(res[2])
-        
         #utils.gray_to_RGB(img[0])
 
     utils.show_image(img[0])

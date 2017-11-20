@@ -153,7 +153,7 @@ class SegNet(object):
                 kernel_size=[3, 3],
                 padding="same",
                 use_bias=True,
-                    kernel_initializer=tf.contrib.layers.variance_scaling_initializer(),
+                #kernel_initializer=tf.contrib.layers.variance_scaling_initializer(),
                 bias_initializer=tf.zeros_initializer(),
                 activation=tf.nn.relu,
                 name = name)

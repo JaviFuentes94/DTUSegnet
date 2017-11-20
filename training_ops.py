@@ -3,6 +3,7 @@
 # calc_accuracy   - to calculate the accuracy
 # train_network   - to backpropagate the error through the network (1 training step)
 import tensorflow as tf
+import utils
 
 # 1) Define cross entropy loss
 def calc_loss(predictions, labels):
@@ -41,7 +42,14 @@ def train_network(loss):
         optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.000001)
         # Computing our gradients
         grads_and_vars = optimizer.compute_gradients(loss)
+        #utils.variable_summaries(grads_and_vars)
+        #tf.summary.scalar("grads_and_vars", grads_and_vars)
+        
 		# Applying the gradients
-        train_op = optimizer.apply_gradients(grads_and_vars)
+        capped_gvs = [(tf.clip_by_norm(grad, 50), var) for grad, var in grads_and_vars]
+        for grad, var in capped_gvs:
+            tf.summary.histogram(var.name + '/gradient', grad)
+        # Applying the gradients
+        train_op = optimizer.apply_gradients(capped_gvs)
         #tf.summary.scalar("Train op", train_op)
         return train_op
