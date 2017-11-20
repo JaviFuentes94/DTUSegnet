@@ -23,11 +23,11 @@ import training_ops
 #sess = tf.InteractiveSession()
 
 images_ph = tf.placeholder(tf.float32, [None, 224, 224, 3])
-imgIn = utils.load_image_input("./Data/images/0001TP_006720.png")
+imgIn = utils.load_image_input(".\\Data\\images\\0001TP_006720.png")
 imgIn = imgIn.reshape((1, 224, 224, 3))
 
 labels_ph= tf.placeholder(tf.int32, [None, 224, 224])
-imgLabel = utils.load_image_labels("./Data/labels/0001TP_006720.png")
+imgLabel = utils.load_image_labels(".\\Data\\labels\\0001TP_006720.png")
 imgLabel = imgLabel.reshape((1, 224, 224))
 
 #utils.gray_to_RGB(imgLabel,"Label.png")

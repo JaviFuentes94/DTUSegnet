@@ -16,7 +16,7 @@ class SegNet(object):
         if segnet_npy_path is None:
             path = inspect.getfile(SegNet)
             path = os.path.abspath(os.path.join(path, os.pardir))
-            path = os.path.join(path,"tensorflow-vgg/vgg16.npy")
+            path = os.path.join(path,"tensorflow-vgg\\vgg16.npy")
             segnet_npy_path = path
             print(path)
 
