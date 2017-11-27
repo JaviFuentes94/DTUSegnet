@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 
 
 VGG_MEAN = [103.939, 116.779, 123.68]
+FLAGS = tf.app.flags.FLAGS
 # synset = [l.strip() for l in open('synset.txt').readlines()]
 
 
@@ -21,32 +22,38 @@ def load_image_input(path):
     assert (0 <= img).all() and (img <= 1.0).all()
     # print "Original Image Shape: ", img.shape
     # we crop image from center
-    short_edge = min(img.shape[:2])
-    yy = int((img.shape[0] - short_edge) / 2)
-    xx = int((img.shape[1] - short_edge) / 2)
-    crop_img = img[yy: yy + short_edge, xx: xx + short_edge]
-    # resize to 224, 224
-    resized_img = skimage.transform.resize(crop_img, (224, 224))
-    #show_image(resized_img)
+    if FLAGS.inputImX is 224:
+        short_edge = min(img.shape[:2])
+        yy = int((img.shape[0] - short_edge) / 2)
+        xx = int((img.shape[1] - short_edge) / 2)
+        crop_img = img[yy: yy + short_edge, xx: xx + short_edge]
+        # resize to 224, 224
+        resized_img = skimage.transform.resize(crop_img, (224, 224))
+        #show_image(resized_img)
 
-    return resized_img
+        return resized_img
+    else:
+        return img
 
 def load_image_labels(path):
     '''Load the labels image without scaling'''
     img = skimage.io.imread(path)
 
-    short_edge = min(img.shape[:2])
-    yy = int((img.shape[0] - short_edge) / 2)
-    xx = int((img.shape[1] - short_edge) / 2)
-    crop_img = img[yy: yy + short_edge, xx: xx + short_edge]
-    # resize to 224, 224
-    resized_img = skimage.transform.resize(crop_img, (224, 224),order=0)
-    #resized_img = skimage.transform.resize(crop_img, (224, 224))
-    #show_image(resized_img)
-
-    resized_img = resized_img * 255
-    #show_image(resized_img)
-    return resized_img
+    
+    if FLAGS.inputImX is 224:
+        short_edge = min(img.shape[:2])
+        yy = int((img.shape[0] - short_edge) / 2)
+        xx = int((img.shape[1] - short_edge) / 2)
+        crop_img = img[yy: yy + short_edge, xx: xx + short_edge]
+        # resize to 224, 224
+        resized_img = skimage.transform.resize(crop_img, (224, 224),order=0)
+        #resized_img = skimage.transform.resize(crop_img, (224, 224))
+        img = img * 255
+        #show_image(resized_img)
+        return resized_img
+    else:
+        img = img * 255
+        return img
 
 
 def show_image(img):
@@ -57,7 +64,7 @@ def show_image(img):
     # print(img.dtype)
     print('Image content')
     print(img)
-    img = gray_to_RGB(img)
+    #img = gray_to_RGB(img)
     plt.imshow(img)
     plt.show()
     return img
@@ -131,16 +138,16 @@ def rgb2bgr(rgb):
         rgb_scaled = rgb * 255.0
         # Convert RGB to BGR
         red, green, blue = tf.split(axis=3, num_or_size_splits=3, value=rgb_scaled)
-        assert red.get_shape().as_list()[1:] == [224, 224, 1]
-        assert green.get_shape().as_list()[1:] == [224, 224, 1]
-        assert blue.get_shape().as_list()[1:] == [224, 224, 1]
+        assert red.get_shape().as_list()[1:] == [FLAGS.inputImX, FLAGS.inputImY, 1]
+        assert green.get_shape().as_list()[1:] == [FLAGS.inputImX, FLAGS.inputImY, 1]
+        assert blue.get_shape().as_list()[1:] == [FLAGS.inputImX, FLAGS.inputImY, 1]
         #It normalizes the values of the image based on the means of the vgg
         bgr = tf.concat(axis=3, values=[
             blue - VGG_MEAN[0],
             green - VGG_MEAN[1],
             red - VGG_MEAN[2],
         ])
-        assert bgr.get_shape().as_list()[1:] == [224, 224, 3]
+        assert bgr.get_shape().as_list()[1:] == [FLAGS.inputImX, FLAGS.inputImY, 3]
         return bgr
 
 def variable_summaries(var):

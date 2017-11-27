@@ -19,24 +19,30 @@ sys.path.insert(0, abs_file_path)
 import SegNet as sn
 import utils
 import training_ops
+import batch
 
+FLAGS = tf.app.flags.FLAGS
+tf.app.flags.DEFINE_integer('inputImX',224, 'Size of the x axis of the input image')
+tf.app.flags.DEFINE_integer('inputImY',224, 'Size of the y axis of the input image')
 
 timestr = time.strftime("%Y%m%d-%H%M%S")
 tensorboard_path=os.path.join("./Tensorboard", timestr)
 #sess = tf.InteractiveSession()
 
-images_ph = tf.placeholder(tf.float32, [None, 224, 224, 3])
+images_ph = tf.placeholder(tf.float32, [None, FLAGS.inputImX, FLAGS.inputImY, 3])
 imgIn = utils.load_image_input(".\\Data\\images\\0001TP_007140.png")
-imgIn = imgIn.reshape((1, 224, 224, 3))
+imgIn = imgIn.reshape((1, FLAGS.inputImX, FLAGS.inputImY, 3))
 
-labels_ph= tf.placeholder(tf.int32, [None, 224, 224])
+labels_ph= tf.placeholder(tf.int32, [None, FLAGS.inputImX, FLAGS.inputImY])
 imgLabel = utils.load_image_labels(".\\Data\\labels\\0001TP_007140.png")
-imgLabel = imgLabel.reshape((1, 224, 224))
+imgLabel = imgLabel.reshape((1, FLAGS.inputImX, FLAGS.inputImY))
 
-#utils.gray_to_RGB(imgLabel,"Label.png")
 
 segnet = sn.SegNet(num_class = 12 )
 segnet.build(images_ph)
+
+#batch = batch.batch()
+#imgIn, imgLabel = batch.get_train(1)
 
 loss_op = training_ops.calc_loss(segnet.convD5_2, labels_ph)
 train_op = training_ops.train_network(loss_op)
@@ -56,8 +62,10 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
         feed_test = {images_ph: imgIn}
         img = sess.run(segnet.argmax_layer, feed_dict=feed_test)
 
-        #if (i%10)==0:
-            #utils.show_image(img[0])
+        if (i%10)==0:
+            utils.show_image(img[0])
+            #utils.show_image(imgIn[0])
+            #utils.show_image(imgLabel[0])
 
         #DEBUG
         fetches_test = [loss_op, acc_op]
