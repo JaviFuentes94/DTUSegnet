@@ -40,12 +40,12 @@ def load_image_labels(path):
     xx = int((img.shape[1] - short_edge) / 2)
     crop_img = img[yy: yy + short_edge, xx: xx + short_edge]
     # resize to 224, 224
-    resized_img = skimage.transform.resize(crop_img, (224, 224))
-    resized_img = skimage.transform.resize(crop_img, (224, 224))
+    resized_img = skimage.transform.resize(crop_img, (224, 224),order=0)
+    #resized_img = skimage.transform.resize(crop_img, (224, 224))
     #show_image(resized_img)
 
     resized_img = resized_img * 255
-    show_image(resized_img)
+    #show_image(resized_img)
     return resized_img
 
 
@@ -55,8 +55,8 @@ def show_image(img):
     # print(img.shape)
     # print('Image type')
     # print(img.dtype)
-    # print('Image content')
-    # print(img)
+    print('Image content')
+    print(img)
     img = gray_to_RGB(img)
     plt.imshow(img)
     plt.show()
@@ -143,6 +143,17 @@ def rgb2bgr(rgb):
         assert bgr.get_shape().as_list()[1:] == [224, 224, 3]
         return bgr
 
+def variable_summaries(var):
+  """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
+  with tf.name_scope('summaries'):
+    mean = tf.reduce_mean(var)
+    tf.summary.scalar('mean', mean)
+    with tf.name_scope('stddev'):
+      stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
+    tf.summary.scalar('stddev', stddev)
+    tf.summary.scalar('max', tf.reduce_max(var))
+    tf.summary.scalar('min', tf.reduce_min(var))
+    tf.summary.histogram('histogram', var)
 
 if __name__ == "__main__":
     test()

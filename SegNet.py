@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 import time
 
-from utils import rgb2bgr
+from utils import rgb2bgr, gray_to_RGB
 import PoolingProcedure as custompool
 
 class SegNet(object):
@@ -120,7 +120,9 @@ class SegNet(object):
         #this for each pixel returns the class with biggest probability
         with tf.name_scope("argmax"):
             self.argmax_layer = tf.argmax(self.softmax_layer, 3)
-
+            img_summary = tf.summary.image('Result image', tf.expand_dims(tf.to_float(self.argmax_layer), 3))
+            #img = gray_to_RGB(tf.to_float(self.argmax_layer[0]))
+            #img_summary = tf.summary.image('Result image',img)
         print(("build Decoder finished: %ds" % (time.time() - start_time)))
 
     def conv_layer(self, bottom, name):
@@ -153,7 +155,7 @@ class SegNet(object):
                 kernel_size=[3, 3],
                 padding="same",
                 use_bias=True,
-                kernel_initializer=tf.contrib.layers.variance_scaling_initializer(),
+                #kernel_initializer=tf.contrib.layers.variance_scaling_initializer(),
                 bias_initializer=tf.zeros_initializer(),
                 activation=tf.nn.relu,
                 name = name)
