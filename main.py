@@ -30,19 +30,19 @@ tensorboard_path=os.path.join("./Tensorboard", timestr)
 #sess = tf.InteractiveSession()
 
 images_ph = tf.placeholder(tf.float32, [None, FLAGS.inputImX, FLAGS.inputImY, 3])
-imgIn = utils.load_image_input(".\\Data\\images\\0001TP_007140.png")
-imgIn = imgIn.reshape((1, FLAGS.inputImX, FLAGS.inputImY, 3))
+#imgIn = utils.load_image_input(".\\Data\\images\\0001TP_007140.png")
+#imgIn = imgIn.reshape((1, FLAGS.inputImX, FLAGS.inputImY, 3))
 
 labels_ph= tf.placeholder(tf.int32, [None, FLAGS.inputImX, FLAGS.inputImY])
-imgLabel = utils.load_image_labels(".\\Data\\labels\\0001TP_007140.png")
-imgLabel = imgLabel.reshape((1, FLAGS.inputImX, FLAGS.inputImY))
+#imgLabel = utils.load_image_labels(".\\Data\\labels\\0001TP_007140.png")
+#imgLabel = imgLabel.reshape((1, FLAGS.inputImX, FLAGS.inputImY))
 
 
 segnet = sn.SegNet(num_class = 12 )
 segnet.build(images_ph)
 
-#batch = batch.batch()
-#imgIn, imgLabel = batch.get_train(1)
+batch = batch.batch()
+
 
 loss_op = training_ops.calc_loss(segnet.convD5_2, labels_ph)
 train_op = training_ops.train_network(loss_op)
@@ -52,18 +52,20 @@ init =  tf.global_variables_initializer()
 with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu_memory_fraction=0.5)))) as sess:
 #with tf.device('/cpu:0'):
 #    with tf.Session() as sess:
-    #images = tf.placeholder("float", [2, 224, 224, 3])
+
     merged = tf.summary.merge_all()
     tensorboard_writer = tf.summary.FileWriter(tensorboard_path, sess.graph) #Saves the graph in the Tensorboard folder
     sess.run(init)
 
     for i in range(5000):
 
+        imgIn, imgLabel = batch.get_train(3)
+
         feed_test = {images_ph: imgIn}
         img = sess.run(segnet.argmax_layer, feed_dict=feed_test)
 
-        if (i%10)==0:
-            utils.show_image(img[0])
+        #if (i%10)==0:
+            #utils.show_image(img[0])
             #utils.show_image(imgIn[0])
             #utils.show_image(imgLabel[0])
 
