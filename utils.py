@@ -64,7 +64,7 @@ def show_image(img):
 
 
 def gray_to_RGB(img):
-    with open("Data\\colors.txt") as file:
+    with open("Data/colors.txt") as file:
         colors = []
         for line in file.readlines():
             l = line.split()
@@ -116,7 +116,7 @@ def load_image2(path, height=None, width=None):
 
 
 def test():
-    img = skimage.io.imread(".\\Data\\labels\\0006R0_f02070.png")
+    img = skimage.io.imread("./Data/labels/0006R0_f02070.png")
     show_image(img)
     #img = skimage.io.imread("./Data/0001TP_006720_L.png")
     #plt.imshow(img)
