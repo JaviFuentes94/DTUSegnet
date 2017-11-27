@@ -38,8 +38,8 @@ def calc_accuracy(predictions, labels):
 def train_network(loss):
     with tf.variable_scope("TrainOp"):
         # Defining our optimizer
-        #optimizer = tf.train.MomentumOptimizer(learning_rate=0.000001, momentum=0.9)
-        optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.000001)
+        optimizer = tf.train.MomentumOptimizer(learning_rate=0.001, momentum=0.9)
+        #optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.000001)
         # Computing our gradients
         grads_and_vars = optimizer.compute_gradients(loss)
         #utils.variable_summaries(grads_and_vars)
@@ -51,5 +51,4 @@ def train_network(loss):
             tf.summary.histogram(var.name + '/gradient', grad)
         # Applying the gradients
         train_op = optimizer.apply_gradients(capped_gvs)
-        #tf.summary.scalar("Train op", train_op)
         return train_op

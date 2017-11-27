@@ -40,8 +40,8 @@ def load_image_labels(path):
     xx = int((img.shape[1] - short_edge) / 2)
     crop_img = img[yy: yy + short_edge, xx: xx + short_edge]
     # resize to 224, 224
-    resized_img = skimage.transform.resize(crop_img, (224, 224))
-    resized_img = skimage.transform.resize(crop_img, (224, 224))
+    resized_img = skimage.transform.resize(crop_img, (224, 224),order=0)
+    #resized_img = skimage.transform.resize(crop_img, (224, 224))
     #show_image(resized_img)
 
     resized_img = resized_img * 255
@@ -55,8 +55,8 @@ def show_image(img):
     # print(img.shape)
     # print('Image type')
     # print(img.dtype)
-    # print('Image content')
-    # print(img)
+    print('Image content')
+    print(img)
     img = gray_to_RGB(img)
     plt.imshow(img)
     plt.show()
