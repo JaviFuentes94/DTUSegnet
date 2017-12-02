@@ -25,13 +25,14 @@ def calc_loss(predictions, labels, num_class):
 
         #Calculate cross-entropy including median-frequency weighting
         cross_entropy = -tf.reduce_sum((one_hot_labels * tf.log(softmax_predictions + 1e-10)) * median_frequencies, axis=[2])
-        #Sum over all pixels
-        cross_entropy = tf.reduce_sum(cross_entropy, axis=[1])
 	
         #cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels, logits=predictions)
-   	
 	# Sum over all pixels
-        cross_entropy = tf.reduce_sum(cross_entropy, [1, 2])
+        #cross_entropy = tf.reduce_sum(cross_entropy, [1, 2])
+	
+	#Sum over all pixels
+        cross_entropy = tf.reduce_sum(cross_entropy, axis=[1])
+	
    	# Average over samples
    	# Averaging makes the loss invariant to batch size, which is very nice.
         cross_entropy = tf.reduce_mean(cross_entropy)
