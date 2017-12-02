@@ -6,17 +6,34 @@ import tensorflow as tf
 import utils
 
 # 1) Define cross entropy loss
-def calc_loss(predictions, labels):
+def calc_loss(predictions, labels, num_class):
     """computing cross entropy per sample, use softmax_cross_entropy_with_logits to avoid problems with log(0)
    	    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels, predictions)
    	    I believe using that one the labels will have to be in [widthxheight] shape
    	    instead of 3d [widthxheightxclassnum]"""
     with tf.variable_scope("Loss"):
-        cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels, logits=predictions)
-   	    # Sum over all pixels
+	#Flatten preds (pixels)
+        flattened_predictions = tf.reshape(predictions, (-1, num_class))
+
+        # Flatten labels (pixels)
+        flattened_labels = tf.reshape(labels, [-1])
+        # One-hot labels
+        one_hot_labels = tf.one_hot(flattened_labels, depth=num_class)
+
+        #Calculate softmax of predictions
+        softmax_predictions = tf.nn.softmax(flattened_predictions)
+
+        #Calculate cross-entropy including median-frequency weighting
+        cross_entropy = -tf.reduce_sum((one_hot_labels * tf.log(softmax_predictions + 1e-10)) * median_frequencies, axis=[2])
+        #Sum over all pixels
+        cross_entropy = tf.reduce_sum(cross_entropy, axis=[1])
+	
+        #cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels, logits=predictions)
+   	
+	# Sum over all pixels
         cross_entropy = tf.reduce_sum(cross_entropy, [1, 2])
-   	    # Average over samples
-   	    # Averaging makes the loss invariant to batch size, which is very nice.
+   	# Average over samples
+   	# Averaging makes the loss invariant to batch size, which is very nice.
         cross_entropy = tf.reduce_mean(cross_entropy)
         #Show cross entropy in tensorboard
         tf.summary.scalar("Cross entropy", cross_entropy)
