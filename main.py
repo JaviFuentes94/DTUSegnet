@@ -24,6 +24,10 @@ import batch
 FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_integer('inputImX',224, 'Size of the x axis of the input image')
 tf.app.flags.DEFINE_integer('inputImY',224, 'Size of the y axis of the input image')
+tf.app.flags.DEFINE_string('images_path', '.\\Data\\images\\*.png', 'Path for the images')
+tf.app.flags.DEFINE_string('labels_path', '.\\Data\\labels\\*.png', 'Path for the labels images')
+tf.app.flags.DEFINE_string('MBF_weights_path','Data/labels/class_weights.txt','path to the MBF weights')
+
 
 timestr = time.strftime("%Y%m%d-%H%M%S")
 tensorboard_path=os.path.join("./Tensorboard", timestr)
@@ -37,14 +41,14 @@ labels_ph= tf.placeholder(tf.int32, [None, FLAGS.inputImX, FLAGS.inputImY])
 #imgLabel = utils.load_image_labels(".\\Data\\labels\\0001TP_007140.png")
 #imgLabel = imgLabel.reshape((1, FLAGS.inputImX, FLAGS.inputImY))
 
-
-segnet = sn.SegNet(num_class = 12 )
+num_class = 12
+segnet = sn.SegNet(num_class = num_class)
 segnet.build(images_ph)
 
-batch = batch.batch()
+batch = batch.batch(FLAGS)
 
-
-loss_op = training_ops.calc_loss(segnet.convD5_2, labels_ph)
+#loss_op = training_ops.calc_loss(segnet.convD5_2, labels_ph)
+loss_op = training_ops.calc_MFB_loss(segnet.convD5_2, labels_ph, num_class,FLAGS)
 train_op = training_ops.train_network(loss_op)
 acc_op = training_ops.calc_accuracy(segnet.argmax_layer, labels_ph)
 

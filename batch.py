@@ -5,9 +5,9 @@ import numpy as np
 import tensorflow as tf
 
 class batch:
-    def __init__(self):
-        images_filenames = glob.glob('.\\Data\\images\\*.png')
-        labels_filenames = glob.glob('.\\Data\\labels\\*.png')
+    def __init__(self,FLAGS):
+        images_filenames = glob.glob(FLAGS.images_path)
+        labels_filenames = glob.glob(FLAGS.labels_path)
         self.val_size = 100
         rand_idx =  list(range(0,len(images_filenames)))
         random.shuffle(rand_idx)

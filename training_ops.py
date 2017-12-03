@@ -4,35 +4,57 @@
 # train_network   - to backpropagate the error through the network (1 training step)
 import tensorflow as tf
 import utils
-
 # 1) Define cross entropy loss
-def calc_loss(predictions, labels, num_class):
+def calc_loss(predictions, labels):
     """computing cross entropy per sample, use softmax_cross_entropy_with_logits to avoid problems with log(0)
    	    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels, predictions)
    	    I believe using that one the labels will have to be in [widthxheight] shape
    	    instead of 3d [widthxheightxclassnum]"""
     with tf.variable_scope("Loss"):
-	#Flatten preds (pixels)
-        flattened_predictions = tf.reshape(predictions, (-1, num_class))
+        cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels, logits=predictions)
+   	    # Sum over all pixels
+        cross_entropy = tf.reduce_sum(cross_entropy, [1, 2])
+   	    # Average over samples
+   	    # Averaging makes the loss invariant to batch size, which is very nice.
+        cross_entropy = tf.reduce_mean(cross_entropy)
+        #Show cross entropy in tensorboard
+        tf.summary.scalar("Cross entropy", cross_entropy)
+        return cross_entropy
 
+# 1) Define cross entropy loss with Median Frequency Balancing
+def calc_MFB_loss(predictions, labels, num_class,FLAGS):
+    with tf.variable_scope("Loss"):
+        #Acquisition of the MBF weights
+        median_frequencies = []
+        with open(FLAGS.MBF_weights_path) as file:
+            for line in file.readlines():
+                median_frequencies.append(float(line.split()[1]))
+        median_frequencies = tf.convert_to_tensor(median_frequencies, dtype=tf.float32)
+	    #Flatten preds (pixels)
+        flattened_predictions = tf.reshape(predictions, (tf.shape(predictions)[0],-1, num_class))
         # Flatten labels (pixels)
-        flattened_labels = tf.reshape(labels, [-1])
+        flattened_labels = tf.reshape(labels, [tf.shape(labels)[0],-1])
         # One-hot labels
         one_hot_labels = tf.one_hot(flattened_labels, depth=num_class)
-
+        print("one_hot_labels",one_hot_labels.shape)
         #Calculate softmax of predictions
         softmax_predictions = tf.nn.softmax(flattened_predictions)
-
+        print("softmax_predictions",softmax_predictions.shape)
+        test = (one_hot_labels * tf.log(softmax_predictions + 1e-10))
+        print("test",test.shape)
+        test2 = tf.multiply(test,median_frequencies)
+        print("test2",test2.shape)
         #Calculate cross-entropy including median-frequency weighting
-        cross_entropy = -tf.reduce_sum((one_hot_labels * tf.log(softmax_predictions + 1e-10)) * median_frequencies, axis=[2])
-	
+        cross_entropy = -tf.reduce_sum( test2, axis=[2])
         #cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels, logits=predictions)
+        print("cross_entropy1",cross_entropy.shape)
 	# Sum over all pixels
         #cross_entropy = tf.reduce_sum(cross_entropy, [1, 2])
-	
+
 	#Sum over all pixels
         cross_entropy = tf.reduce_sum(cross_entropy, axis=[1])
-	
+        print("cross_entropy2",cross_entropy.shape)
+
    	# Average over samples
    	# Averaging makes the loss invariant to batch size, which is very nice.
         cross_entropy = tf.reduce_mean(cross_entropy)
@@ -42,12 +64,12 @@ def calc_loss(predictions, labels, num_class):
 
 # 2) Define accuracy
 def calc_accuracy(predictions, labels):
-    with tf.variable_scope("Accuracy"):    
+    with tf.variable_scope("Accuracy"):
         # Calculate the number of pixels with the same value in pred and lab
         predictions = tf.cast(predictions, tf.int32)
         equal_elements = tf.equal(predictions, labels)
         num_equal_elements = tf.reduce_sum(tf.cast(equal_elements, tf.int32))
-        #Calculate global accuracy as fraction of matching pixels 
+        #Calculate global accuracy as fraction of matching pixels
         accuracy = num_equal_elements/tf.size(labels)
         tf.summary.scalar("Accuracy", accuracy)
         return accuracy
@@ -56,13 +78,14 @@ def calc_accuracy(predictions, labels):
 def train_network(loss):
     with tf.variable_scope("TrainOp"):
         # Defining our optimizer
-        optimizer = tf.train.MomentumOptimizer(learning_rate=0.001, momentum=0.9)
+        #optimizer = tf.train.MomentumOptimizer(learning_rate=0.001, momentum=0.9)
+        optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
         #optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.000001)
         # Computing our gradients
         grads_and_vars = optimizer.compute_gradients(loss)
         #utils.variable_summaries(grads_and_vars)
         #tf.summary.scalar("grads_and_vars", grads_and_vars)
-        
+
 		# Applying the gradients
         capped_gvs = [(tf.clip_by_norm(grad, 50), var) for grad, var in grads_and_vars]
         for grad, var in capped_gvs:
