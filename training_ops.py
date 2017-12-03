@@ -44,12 +44,10 @@ def calc_MFB_loss(predictions, labels, num_class,FLAGS):
         print("test",test.shape)
         test2 = tf.multiply(test,median_frequencies)
         print("test2",test2.shape)
+        
         #Calculate cross-entropy including median-frequency weighting
         cross_entropy = -tf.reduce_sum( test2, axis=[2])
-        #cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels, logits=predictions)
         print("cross_entropy1",cross_entropy.shape)
-	# Sum over all pixels
-        #cross_entropy = tf.reduce_sum(cross_entropy, [1, 2])
 
 	#Sum over all pixels
         cross_entropy = tf.reduce_sum(cross_entropy, axis=[1])
