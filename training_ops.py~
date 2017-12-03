@@ -75,7 +75,7 @@ def calc_accuracy(predictions, labels, num_class):
         #C_accuracy = tf.reduce_mean(C_accuracy)
         CM = tf.confusion_matrix(tf.reshape(labels,[-1]),tf.reshape(predictions,[-1]),num_class)
         print(CM.shape)
-        C_accuracy = tf.reduce_sum(tf.diag_part(CM)/ tf.add(tf.reduce_sum(CM,0),1))/num_class
+        C_accuracy = tf.reduce_sum(tf.diag_part(CM)/ tf.add(tf.reduce_sum(CM,0),1e-10))/num_class
         print(C_accuracy.shape)
         tf.summary.scalar("C_Accuracy", C_accuracy)
         return G_accuracy, C_accuracy

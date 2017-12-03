@@ -52,8 +52,7 @@ MFB_loss_op = training_ops.calc_MFB_loss(segnet.convD5_2, labels_ph, num_class,F
 train_op = training_ops.train_network(MFB_loss_op)
 G_acc_op, C_acc_opp = training_ops.calc_accuracy(segnet.argmax_layer, labels_ph,num_class)
 
-init =  tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
-
+init =  tf.global_variables_initializer()
 with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu_memory_fraction=0.5)))) as sess:
 #with tf.device('/cpu:0'):
 #    with tf.Session() as sess:
