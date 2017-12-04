@@ -38,7 +38,7 @@ class PoolingProcedure(object):
         with tf.variable_scope(decoder_layer_name):
             
             input_shape = tf.shape(input_layer)
-            output_shape = [input_shape[0], input_shape[1] * self.ksize[1], input_shape[2] * self.ksize[2], input_shape[3]]
+            output_shape = [input_shape[0], input_shape[1] * self.ksize[1], input_shape[2]*self.ksize[2], input_shape[3]]
 
             flat_input_size = tf.reduce_prod(input_shape)
             flat_output_shape = [output_shape[0], output_shape[1] * output_shape[2] * output_shape[3]]
@@ -59,7 +59,7 @@ class PoolingProcedure(object):
             ret = tf.reshape(ret, output_shape)
 
             set_input_shape = input_layer.get_shape()
-            set_output_shape = [set_input_shape[0], set_input_shape[1] * self.ksize[1], set_input_shape[2] * self.ksize[2], set_input_shape[3]]
+            set_output_shape = [set_input_shape[0],set_input_shape[1] * self.ksize[1], set_input_shape[2] * self.ksize[2], set_input_shape[3]]
             ret.set_shape(set_output_shape)
 
             #DEBUG

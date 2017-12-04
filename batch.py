@@ -4,6 +4,8 @@ import utils
 import numpy as np
 import tensorflow as tf
 
+FLAGS = tf.app.flags.FLAGS
+
 class batch:
     def __init__(self,FLAGS):
         images_filenames = glob.glob(FLAGS.images_path)
@@ -25,8 +27,8 @@ class batch:
         if self.current_batch >= self.train_size:
             self.epoch+=1
             self.current_batch=0
-        b_im = np.zeros((size, 224, 224, 3))
-        b_lab = np.zeros((size, 224, 224))
+        b_im = np.zeros((size, FLAGS.inputImX, FLAGS.inputImY, 3))
+        b_lab = np.zeros((size, FLAGS.inputImX, FLAGS.inputImY))
         random.shuffle(self.train_rand_idx)
         for i in range(size):
             idx = self.train_rand_idx[i]
@@ -39,9 +41,13 @@ class batch:
 
     def get_validation(self):
 
-        v_im = np.zeros((self.val_size, 224, 224, 3))
-        v_lab = np.zeros((self.val_size, 224, 224))
+        v_im = np.zeros((self.val_size, FLAGS.inputImX, FLAGS.inputImY, 3))
+        v_lab = np.zeros((self.val_size, FLAGS.inputImX, FLAGS.inputImY))
         for idx in range(self.val_size):
             v_im[idx] = utils.load_image_input(self.val_images_filenames[idx])
+            print('Input image shape')
+            print(v_im[idx].shape)
             v_lab[idx] = utils.load_image_labels(self.val_labels_filenames[idx])
+            print('Labels image shape')
+            print(v_lab[idx].shape)
         return v_im, v_lab

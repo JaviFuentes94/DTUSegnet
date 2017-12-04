@@ -7,3 +7,5 @@ Tensorboard/
 .vs/
 __pycache__/
 test.png
+
+.py~

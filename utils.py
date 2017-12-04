@@ -22,16 +22,25 @@ def load_image_input(path):
     assert (0 <= img).all() and (img <= 1.0).all()
     # print "Original Image Shape: ", img.shape
     # we crop image from center
-    if FLAGS.inputImX is 224:
+   
+    if FLAGS.inputImX is not 360:
+
+        img = img[:FLAGS.inputImX,:]
+
         short_edge = min(img.shape[:2])
         yy = int((img.shape[0] - short_edge) / 2)
         xx = int((img.shape[1] - short_edge) / 2)
         crop_img = img[yy: yy + short_edge, xx: xx + short_edge]
         # resize to 224, 224
-        resized_img = skimage.transform.resize(crop_img, (224, 224),mode='constant')
+        resized_img = skimage.transform.resize(crop_img, (FLAGS.inputImX, FLAGS.inputImY),mode='constant')
         #show_image(resized_img)
 
         return resized_img
+
+    elif FLAGS.inputImX is not 360:
+        crop_img = img[:FLAGS.inputImX,:]
+        return crop_img
+
     else:
         return img
 
@@ -40,17 +49,21 @@ def load_image_labels(path):
     img = skimage.io.imread(path)
 
     
-    if FLAGS.inputImX is 224:
+    if FLAGS.inputImX is not 360:
+
+        img = img[:FLAGS.inputImX,:]
+
         short_edge = min(img.shape[:2])
         yy = int((img.shape[0] - short_edge) / 2)
         xx = int((img.shape[1] - short_edge) / 2)
         crop_img = img[yy: yy + short_edge, xx: xx + short_edge]
         # resize to 224, 224
-        resized_img = skimage.transform.resize(crop_img, (224, 224),order=0,mode='constant')
+        resized_img = skimage.transform.resize(crop_img, (FLAGS.inputImX, FLAGS.inputImY),order=0,mode='constant')
         #resized_img = skimage.transform.resize(crop_img, (224, 224))
         resized_img = resized_img * 255
         #show_image(resized_img)
         return resized_img
+
     else:
         img = img * 255
         return img

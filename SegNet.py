@@ -130,10 +130,10 @@ class SegNet(object):
             filt = self.get_conv_filter(name)
 
             conv = tf.nn.conv2d(bottom, filt, [1, 1, 1, 1], padding='SAME')
-
+            
             print(name)
-            print(filt.shape)
-
+            print(conv.shape)
+            
             conv_biases = self.get_bias(name)
             bias = tf.nn.bias_add(conv, conv_biases)
 
@@ -141,10 +141,10 @@ class SegNet(object):
             return relu
 
     def get_conv_filter(self, name):
-        return tf.Variable(self.data_dict[name][0], name="filter")
+        return tf.constant(self.data_dict[name][0], name="filter")
 
     def get_bias(self, name):
-        return tf.Variable(self.data_dict[name][1], name="biases")
+        return tf.constant(self.data_dict[name][1], name="biases")
 
     def conv_layer_decoder(self, bottom, name, size_out):
         with tf.variable_scope(name):

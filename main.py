@@ -22,8 +22,9 @@ import training_ops
 import batch
 
 FLAGS = tf.app.flags.FLAGS
-tf.app.flags.DEFINE_integer('inputImX',224, 'Size of the x axis of the input image')
-tf.app.flags.DEFINE_integer('inputImY',224, 'Size of the y axis of the input image')
+#224,224 // 360,480
+tf.app.flags.DEFINE_integer('inputImX',352, 'Size of the x axis of the input image')
+tf.app.flags.DEFINE_integer('inputImY',480, 'Size of the y axis of the input image')
 tf.app.flags.DEFINE_string('images_path', './Data/images/*.png', 'Path for the images')
 tf.app.flags.DEFINE_string('labels_path', './Data/labels/*.png', 'Path for the labels images')
 tf.app.flags.DEFINE_string('MBF_weights_path','Data/labels/class_weights.txt','path to the MBF weights')
@@ -66,7 +67,7 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
     fetches_valid = [G_acc_op, C_acc_opp]
     feed_valid = {images_ph: v_im, labels_ph: v_lab}
     for i in range(5000):
-        imgIn, imgLabel = batch.get_train(10)
+        imgIn, imgLabel = batch.get_train(2)
 
         feed_dict = {images_ph: imgIn, labels_ph: imgLabel}
         fetches_train = [merged, train_op, loss_op, G_acc_op, C_acc_opp, MFB_loss_op]
@@ -74,20 +75,11 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
         tensorboard_writer.add_summary(summary,i)
 
         if (i%10)==0:
-            #utils.show_image(img[0])
-            #utils.show_image(imgIn[0])
-            #utils.show_image(imgLabel[0])
             print(i,"	Test loss",loss,"	MFB loss", MFB_loss,"	G_acc", G_acc, "	C_acc", C_acc)
 
         if batch.get_epoch() > current_epoch:
             current_epoch= batch.get_epoch()
             res = sess.run(fetches_valid, feed_dict=feed_valid)
             print("NUMBER EPOCHS: ", current_epoch,"	Valid G_acc", res[0], "C_acc", res[1])
-        #print("Train WTF "+res[0])
-        # print("Loss")
-        # print(res[1])
-        # print("Accuracy")
-        # print(res[2])
-        #utils.gray_to_RGB(img[0])
+    
 
-    utils.show_image(img[0])
