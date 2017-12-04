@@ -8,6 +8,8 @@ import time
 from utils import rgb2bgr, gray_to_RGB
 import PoolingProcedure as custompool
 
+FLAGS = tf.app.flags.FLAGS
+
 class SegNet(object):
     """Builds the SegNet model"""
     def __init__(self, num_class, segnet_npy_path=None):
@@ -137,7 +139,7 @@ class SegNet(object):
             conv_biases = self.get_bias(name)
             bias = tf.nn.bias_add(conv, conv_biases)
 
-            relu = tf.nn.relu(bias)
+            relu = tf.nn.relu(self.batch_norm_layer(bias))
             return relu
 
     def get_conv_filter(self, name):
@@ -155,10 +157,17 @@ class SegNet(object):
                 kernel_size=[3, 3],
                 padding="same",
                 use_bias=True,
-                #kernel_initializer=tf.contrib.layers.variance_scaling_initializer(),
+                kernel_initializer=tf.contrib.layers.variance_scaling_initializer(),
                 bias_initializer=tf.zeros_initializer(),
-                activation=tf.nn.relu,
+                activation=None,
                 name = name)
             print(name)
             print(conv.shape)
+
+            conv = tf.nn.relu(self.batch_norm_layer(conv))
+
             return conv
+
+    def batch_norm_layer(self, inputT):
+        #return inputT
+        return tf.contrib.layers.batch_norm(inputT)

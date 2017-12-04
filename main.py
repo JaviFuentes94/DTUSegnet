@@ -25,6 +25,7 @@ FLAGS = tf.app.flags.FLAGS
 #224,224 // 360,480
 tf.app.flags.DEFINE_integer('inputImX',352, 'Size of the x axis of the input image')
 tf.app.flags.DEFINE_integer('inputImY',480, 'Size of the y axis of the input image')
+tf.app.flags.DEFINE_bool('isTraining',True, 'Size of the y axis of the input image')
 tf.app.flags.DEFINE_string('images_path', './Data/images/*.png', 'Path for the images')
 tf.app.flags.DEFINE_string('labels_path', './Data/labels/*.png', 'Path for the labels images')
 tf.app.flags.DEFINE_string('MBF_weights_path','Data/labels/class_weights.txt','path to the MBF weights')

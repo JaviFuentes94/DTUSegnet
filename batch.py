@@ -45,9 +45,9 @@ class batch:
         v_lab = np.zeros((self.val_size, FLAGS.inputImX, FLAGS.inputImY))
         for idx in range(self.val_size):
             v_im[idx] = utils.load_image_input(self.val_images_filenames[idx])
-            print('Input image shape')
-            print(v_im[idx].shape)
+            #print('Input image shape')
+            #print(v_im[idx].shape)
             v_lab[idx] = utils.load_image_labels(self.val_labels_filenames[idx])
-            print('Labels image shape')
-            print(v_lab[idx].shape)
+            #print('Labels image shape')
+            #print(v_lab[idx].shape)
         return v_im, v_lab
