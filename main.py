@@ -21,6 +21,9 @@ import utils
 import training_ops
 import batch
 
+#Reset
+tf.reset_default_graph()
+
 FLAGS = tf.app.flags.FLAGS
 #224,224 // 360,480
 tf.app.flags.DEFINE_integer('inputImX',352, 'Size of the x axis of the input image')
@@ -42,10 +45,12 @@ images_ph = tf.placeholder(tf.float32, [None, FLAGS.inputImX, FLAGS.inputImY, 3]
 labels_ph= tf.placeholder(tf.int32, [None, FLAGS.inputImX, FLAGS.inputImY])
 #imgLabel = utils.load_image_labels(".\\Data\\labels\\0001TP_007140.png")
 #imgLabel = imgLabel.reshape((1, FLAGS.inputImX, FLAGS.inputImY))
+phase_ph = tf.placeholder(tf.bool, name='phase')
+
 
 num_class = 12
 segnet = sn.SegNet(num_class = num_class)
-segnet.build(images_ph)
+segnet.build(images_ph, phase_ph)
 
 batch = batch.batch(FLAGS)
 
@@ -68,7 +73,7 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
     fetches_valid = [G_acc_op, C_acc_opp]
     list_feed_valid = []
     for i in range(0,v_im.shape[0],10):
-        list_feed_valid.append({images_ph: v_im[i:i+9], labels_ph: v_lab[i:i+9]})
+        list_feed_valid.append({images_ph: v_im[i:i+9], labels_ph: v_lab[i:i+9], phase_ph: 0})
 	
     #feed_valid = {images_ph: v_im, labels_ph: v_lab}
 
@@ -77,7 +82,7 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
 
         imgIn, imgLabel = batch.get_train(5)
 
-        feed_dict = {images_ph: imgIn, labels_ph: imgLabel}
+        feed_dict = {images_ph: imgIn, labels_ph: imgLabel, phase_ph: 1}
         fetches_train = [segnet.argmax_layer, merged, train_op, loss_op, MFB_loss_op]
         img, summary, _ , loss, MFB_loss = sess.run(fetches = fetches_train, feed_dict=feed_dict)
         #tensorboard_writer.add_summary(summary,i)
@@ -97,6 +102,7 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
             G_acc = []
             for feed_valid in list_feed_valid:
                 res = sess.run(fetches_valid, feed_dict=feed_valid)
+                #ADDDDDD phase_ph = 0 here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! to feed_valid
                 G_acc.append(res[0])
                 C_acc.append(res[1])
             G_acc = sum(G_acc)/len(G_acc)

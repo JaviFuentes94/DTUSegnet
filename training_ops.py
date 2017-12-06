@@ -92,19 +92,21 @@ def calc_accuracy(predictions, labels, num_class):
 # 3) Define the training op
 def train_network(loss):
     with tf.variable_scope("TrainOp"):
-        # Defining our optimizer
-        #optimizer = tf.train.MomentumOptimizer(learning_rate=0.1, momentum=0.9)
-        optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
-        #optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.000001)
-        # Computing our gradients
-        grads_and_vars = optimizer.compute_gradients(loss)
-        #utils.variable_summaries(grads_and_vars)
-        #tf.summary.scalar("grads_and_vars", grads_and_vars)
-        capped_gvs = grads_and_vars
-		# Applying the gradients
-        #capped_gvs = [(tf.clip_by_norm(grad, 50), var) for grad, var in grads_and_vars]
-        for grad, var in capped_gvs:
-            tf.summary.histogram(var.name[:-2] + '/gradient', grad)
-        # Applying the gradients
-        train_op = optimizer.apply_gradients(capped_gvs)
-        return train_op
+        #Add bn to training ops
+        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+        with tf.control_dependencies(update_ops):
+            #optimizer = tf.train.MomentumOptimizer(learning_rate=0.1, momentum=0.9)
+            optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
+            #optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.000001)
+            # Computing our gradients
+            grads_and_vars = optimizer.compute_gradients(loss)
+            #utils.variable_summaries(grads_and_vars)
+            #tf.summary.scalar("grads_and_vars", grads_and_vars)
+            capped_gvs = grads_and_vars
+    		# Applying the gradients
+            #capped_gvs = [(tf.clip_by_norm(grad, 50), var) for grad, var in grads_and_vars]
+            for grad, var in capped_gvs:
+                tf.summary.histogram(var.name[:-2] + '/gradient', grad)
+            # Applying the gradients
+            train_op = optimizer.apply_gradients(capped_gvs)
+            return train_op

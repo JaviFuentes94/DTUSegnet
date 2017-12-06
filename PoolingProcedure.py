@@ -21,9 +21,9 @@ class PoolingProcedure(object):
             #DEBUG
             print(name)
             print(layer.shape)
-            return layer
+            return layer, argmax
 
-    def unpool(self, input_layer, encoder_layer_name, decoder_layer_name):
+    def unpool(self, input_layer, encoder_layer_name, decoder_layer_name, argmax):
         """
            Unpooling layer after a previous max pooling layer.
            Args:
@@ -44,7 +44,7 @@ class PoolingProcedure(object):
             flat_output_shape = [output_shape[0], output_shape[1] * output_shape[2] * output_shape[3]]
 
             #Access indixes from the encoder layer through a dictionary
-            ind = self.upsample_idx_dict[encoder_layer_name]
+            ind = argmax
 
             pool_ = tf.reshape(input_layer, [flat_input_size])
             batch_range = tf.reshape(tf.range(tf.cast(output_shape[0], tf.int64), dtype=ind.dtype), 
