@@ -6,15 +6,18 @@ import tensorflow as tf
 import utils
 import numpy as np
 # 1) Define cross entropy loss
-def calc_loss(predictions, labels):
+def calc_loss(predictions, labels, num_class):
     """computing cross entropy per sample, use softmax_cross_entropy_with_logits to avoid problems with log(0)
    	    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels, predictions)
    	    I believe using that one the labels will have to be in [widthxheight] shape
    	    instead of 3d [widthxheightxclassnum]"""
     with tf.variable_scope("Loss"):
-        cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels, logits=predictions)
+        reshaped_logits = tf.reshape(predictions, [-1, num_class])
+        reshaped_labels = tf.reshape(labels, [-1])
+        cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=reshaped_labels, logits=reshaped_logits)
+        #cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels, logits=predictions)
    	    # Sum over all pixels
-        cross_entropy = tf.reduce_sum(cross_entropy, [1, 2])
+        #cross_entropy = tf.reduce_sum(cross_entropy, [1, 2])
    	    # Average over samples
    	    # Averaging makes the loss invariant to batch size, which is very nice.
         cross_entropy = tf.reduce_mean(cross_entropy)
@@ -31,7 +34,8 @@ def calc_MFB_loss(predictions, labels, num_class,FLAGS):
             for line in file.readlines():
                 median_frequencies.append(float(line.split()[1]))
         median_frequencies = tf.convert_to_tensor(median_frequencies, dtype=tf.float32)
-	    #Flatten preds (pixels)
+
+	#Flatten preds (pixels)
         flattened_predictions = tf.reshape(predictions, (tf.shape(predictions)[0],-1, num_class))
         # Flatten labels (pixels)
         flattened_labels = tf.reshape(labels, [tf.shape(labels)[0],-1])
@@ -47,7 +51,7 @@ def calc_MFB_loss(predictions, labels, num_class,FLAGS):
         print("test2",test2.shape)
         
         #Calculate cross-entropy including median-frequency weighting
-        cross_entropy = -tf.reduce_sum( test2, axis=[2])
+        cross_entropy = -tf.reduce_sum(test2, axis=[2])
         print("cross_entropy1",cross_entropy.shape)
 
 	#Sum over all pixels
@@ -71,29 +75,34 @@ def calc_accuracy(predictions, labels, num_class):
         #Calculate global accuracy as fraction of matching pixels
         G_accuracy = num_equal_elements/tf.size(labels)
         tf.summary.scalar("G_Accuracy", G_accuracy)
-        #C_accuracy,_ = tf.metrics.mean_per_class_accuracy(labels,predictions,num_class)
+        #C_accuracy,test = tf.metrics.mean_per_class_accuracy(tf.reshape(labels,[-1]),tf.reshape(predictions,[-1]),num_class)
+        #print(C_accuracy,test)
         #C_accuracy = tf.reduce_mean(C_accuracy)
+
         CM = tf.confusion_matrix(tf.reshape(labels,[-1]),tf.reshape(predictions,[-1]),num_class)
-        print(CM.shape)
-        C_accuracy = tf.reduce_sum(tf.diag_part(CM)/ tf.add(tf.reduce_sum(CM,0),1))/num_class
-        print(C_accuracy.shape)
-        tf.summary.scalar("C_Accuracy", C_accuracy)
+        CM_row_sum = tf.to_float(tf.reduce_sum(CM,1))
+        CM_row_sum = tf.where(tf.greater(CM_row_sum, 0), CM_row_sum, tf.ones_like(CM_row_sum))
+        CM_diag = tf.to_float(tf.diag_part(CM))
+        C_accuracies = tf.div(CM_diag, CM_row_sum)
+        C_accuracy = tf.reduce_mean(C_accuracies)
+        print(C_accuracies.shape,C_accuracy.shape)
+        #tf.summary.scalar("C_Accuracy", C_accuracy)
         return G_accuracy, C_accuracy
 
 # 3) Define the training op
 def train_network(loss):
     with tf.variable_scope("TrainOp"):
         # Defining our optimizer
-        #optimizer = tf.train.MomentumOptimizer(learning_rate=0.001, momentum=0.9)
+        #optimizer = tf.train.MomentumOptimizer(learning_rate=0.1, momentum=0.9)
         optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
         #optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.000001)
         # Computing our gradients
         grads_and_vars = optimizer.compute_gradients(loss)
         #utils.variable_summaries(grads_and_vars)
         #tf.summary.scalar("grads_and_vars", grads_and_vars)
-
+        capped_gvs = grads_and_vars
 		# Applying the gradients
-        capped_gvs = [(tf.clip_by_norm(grad, 50), var) for grad, var in grads_and_vars]
+        #capped_gvs = [(tf.clip_by_norm(grad, 50), var) for grad, var in grads_and_vars]
         for grad, var in capped_gvs:
             tf.summary.histogram(var.name[:-2] + '/gradient', grad)
         # Applying the gradients

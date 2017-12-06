@@ -49,13 +49,13 @@ segnet.build(images_ph)
 
 batch = batch.batch(FLAGS)
 
-loss_op = training_ops.calc_loss(segnet.convD5_2, labels_ph)
+loss_op = training_ops.calc_loss(segnet.convD5_2, labels_ph, num_class)
 MFB_loss_op = training_ops.calc_MFB_loss(segnet.convD5_2, labels_ph, num_class,FLAGS)
-train_op = training_ops.train_network(MFB_loss_op)
+train_op = training_ops.train_network(loss_op)
 G_acc_op, C_acc_opp = training_ops.calc_accuracy(segnet.argmax_layer, labels_ph,num_class)
 
 init =  tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
-
+print("running the train loop")
 with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu_memory_fraction=0.5)))) as sess:
 #with tf.device('/cpu:0'):
 #    with tf.Session() as sess:
@@ -66,21 +66,57 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
     #Validation fetch and feed
     v_im, v_lab = batch.get_validation()
     fetches_valid = [G_acc_op, C_acc_opp]
-    feed_valid = {images_ph: v_im, labels_ph: v_lab}
-    for i in range(5000):
-        imgIn, imgLabel = batch.get_train(2)
+    list_feed_valid = []
+    for i in range(0,v_im.shape[0],10):
+        list_feed_valid.append({images_ph: v_im[i:i+9], labels_ph: v_lab[i:i+9]})
+	
+    #feed_valid = {images_ph: v_im, labels_ph: v_lab}
+
+    print("number of trainable parameters :",np.sum([np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()]))
+    for i in range(500000):
+
+        imgIn, imgLabel = batch.get_train(5)
 
         feed_dict = {images_ph: imgIn, labels_ph: imgLabel}
-        fetches_train = [merged, train_op, loss_op, G_acc_op, C_acc_opp, MFB_loss_op]
-        summary, _ , loss, G_acc, C_acc, MFB_loss = sess.run(fetches = fetches_train, feed_dict=feed_dict)
-        tensorboard_writer.add_summary(summary,i)
+        fetches_train = [segnet.argmax_layer, merged, train_op, loss_op, MFB_loss_op]
+        img, summary, _ , loss, MFB_loss = sess.run(fetches = fetches_train, feed_dict=feed_dict)
+        #tensorboard_writer.add_summary(summary,i)
 
         if (i%10)==0:
+            #utils.show_image(img[0])
+            #utils.show_image(imgIn[0])
+            #utils.show_image(imgLabel[0])
+            G_acc, C_acc = sess.run(fetches = [G_acc_op, C_acc_opp], feed_dict=feed_dict)
             print(i,"	Test loss",loss,"	MFB loss", MFB_loss,"	G_acc", G_acc, "	C_acc", C_acc)
 
         if batch.get_epoch() > current_epoch:
+            print("new epoch")
             current_epoch= batch.get_epoch()
-            res = sess.run(fetches_valid, feed_dict=feed_valid)
-            print("NUMBER EPOCHS: ", current_epoch,"	Valid G_acc", res[0], "C_acc", res[1])
-    
+            #G_acc, C_acc = sess.run(fetches_valid, feed_dict=feed_valid)
+            C_acc = []
+            G_acc = []
+            for feed_valid in list_feed_valid:
+                res = sess.run(fetches_valid, feed_dict=feed_valid)
+                G_acc.append(res[0])
+                C_acc.append(res[1])
+            G_acc = sum(G_acc)/len(G_acc)
+            C_acc = sum(C_acc)/len(C_acc)
+            print("NUMBER EPOCHS: ", current_epoch,"	Valid G_acc", G_acc, "C_acc", C_acc)
+            #if current_epoch > -1:
+            #if current_epoch % 10 == 0:
+                #utils.show_image(img[0])
+                #utils.show_image(img[1])
+                #utils.show_image(img[2])
+                #utils.show_image(img[3])
+                #utils.show_image(img[4])
+                #utils.show_image(imgLabel[0])
+                #utils.show_image(img[1])
+                #utils.show_image(imgLabel[1])
+        #print("Train WTF "+res[0])
+        # print("Loss")
+        # print(res[1])
+        # print("Accuracy")
+        # print(res[2])
+        #utils.gray_to_RGB(img[0])
 
+    utils.show_image(img[0])

@@ -47,7 +47,7 @@ class SegNet(object):
         print("build model started")
 
         im_bgr=rgb2bgr(im_rgb)
-
+        im_bgr= tf.nn.local_response_normalization(im_bgr)
         self.convE1_1 = self.conv_layer(im_bgr, "conv1_1")
         self.convE1_2 = self.conv_layer(self.convE1_1, "conv1_2")
         self.pool1= self.pool.max_pool(self.convE1_2, 'pool1')
@@ -117,12 +117,13 @@ class SegNet(object):
         #this for each pixel goes through num_class classes
         with tf.name_scope("softmax"):
             self.softmax_layer = tf.nn.softmax(self.convD5_2)
-
+        print("softmax_layer", self.softmax_layer.shape)
         #Create an image with classicifactions might be not neccessary as well
         #this for each pixel returns the class with biggest probability
         with tf.name_scope("argmax"):
             self.argmax_layer = tf.argmax(self.softmax_layer, 3)
             img_summary = tf.summary.image('Result_image', tf.expand_dims(tf.to_float(self.argmax_layer), 3))
+            print("armax_layer", self.argmax_layer.shape)
             #img = gray_to_RGB(tf.to_float(self.argmax_layer[0]))
             #img_summary = tf.summary.image('Result image',img)
         print(("build Decoder finished: %ds" % (time.time() - start_time)))
@@ -143,10 +144,10 @@ class SegNet(object):
             return relu
 
     def get_conv_filter(self, name):
-        return tf.constant(self.data_dict[name][0], name="filter")
+        return tf.Variable(self.data_dict[name][0], name="filter")
 
     def get_bias(self, name):
-        return tf.constant(self.data_dict[name][1], name="biases")
+        return tf.Variable(self.data_dict[name][1], name="biases")
 
     def conv_layer_decoder(self, bottom, name, size_out):
         with tf.variable_scope(name):

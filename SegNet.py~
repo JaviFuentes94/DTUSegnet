@@ -8,6 +8,8 @@ import time
 from utils import rgb2bgr, gray_to_RGB
 import PoolingProcedure as custompool
 
+FLAGS = tf.app.flags.FLAGS
+
 class SegNet(object):
     """Builds the SegNet model"""
     def __init__(self, num_class, segnet_npy_path=None):
@@ -45,7 +47,7 @@ class SegNet(object):
         print("build model started")
 
         im_bgr=rgb2bgr(im_rgb)
-
+        im_bgr= tf.nn.local_response_normalization(im_bgr)
         self.convE1_1 = self.conv_layer(im_bgr, "conv1_1")
         self.convE1_2 = self.conv_layer(self.convE1_1, "conv1_2")
         self.pool1= self.pool.max_pool(self.convE1_2, 'pool1')
@@ -115,12 +117,13 @@ class SegNet(object):
         #this for each pixel goes through num_class classes
         with tf.name_scope("softmax"):
             self.softmax_layer = tf.nn.softmax(self.convD5_2)
-
+        print("softmax_layer", self.softmax_layer.shape)
         #Create an image with classicifactions might be not neccessary as well
         #this for each pixel returns the class with biggest probability
         with tf.name_scope("argmax"):
             self.argmax_layer = tf.argmax(self.softmax_layer, 3)
-            img_summary = tf.summary.image('Result image', tf.expand_dims(tf.to_float(self.argmax_layer), 3))
+            img_summary = tf.summary.image('Result_image', tf.expand_dims(tf.to_float(self.argmax_layer), 3))
+            print("armax_layer", self.argmax_layer.shape)
             #img = gray_to_RGB(tf.to_float(self.argmax_layer[0]))
             #img_summary = tf.summary.image('Result image',img)
         print(("build Decoder finished: %ds" % (time.time() - start_time)))
@@ -130,21 +133,21 @@ class SegNet(object):
             filt = self.get_conv_filter(name)
 
             conv = tf.nn.conv2d(bottom, filt, [1, 1, 1, 1], padding='SAME')
-
+            
             print(name)
-            print(filt.shape)
-
+            print(conv.shape)
+            
             conv_biases = self.get_bias(name)
             bias = tf.nn.bias_add(conv, conv_biases)
 
-            relu = tf.nn.relu(bias)
+            relu = tf.nn.relu(self.batch_norm_layer(bias))
             return relu
 
     def get_conv_filter(self, name):
-        return tf.Variable(self.data_dict[name][0], name="filter")
+        return tf.constant(self.data_dict[name][0], name="filter")
 
     def get_bias(self, name):
-        return tf.Variable(self.data_dict[name][1], name="biases")
+        return tf.constant(self.data_dict[name][1], name="biases")
 
     def conv_layer_decoder(self, bottom, name, size_out):
         with tf.variable_scope(name):
@@ -155,10 +158,17 @@ class SegNet(object):
                 kernel_size=[3, 3],
                 padding="same",
                 use_bias=True,
-                #kernel_initializer=tf.contrib.layers.variance_scaling_initializer(),
+                kernel_initializer=tf.contrib.layers.variance_scaling_initializer(),
                 bias_initializer=tf.zeros_initializer(),
-                activation=tf.nn.relu,
+                activation=None,
                 name = name)
             print(name)
             print(conv.shape)
+
+            conv = tf.nn.relu(self.batch_norm_layer(conv))
+
             return conv
+
+    def batch_norm_layer(self, inputT):
+        #return inputT
+        return tf.contrib.layers.batch_norm(inputT)
