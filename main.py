@@ -21,6 +21,19 @@ import utils
 import training_ops
 import batch
 
+#Needed for running under aws
+from tensorflow.python.framework import ops
+from tensorflow.python.ops import gen_nn_ops
+@ops.RegisterGradient("MaxPoolWithArgmax")
+def _MaxPoolWithArgmaxGrad(op, grad, some_other_arg):
+  return gen_nn_ops._max_pool_grad(op.inputs[0],
+                                   op.outputs[0],
+                                   grad,
+                                   op.get_attr("ksize"),
+                                   op.get_attr("strides"),
+                                   padding=op.get_attr("padding"),
+                                   data_format='NHWC')
+
 #Reset
 tf.reset_default_graph()
 
@@ -61,7 +74,7 @@ G_acc_op, C_acc_opp = training_ops.calc_accuracy(segnet.argmax_layer, labels_ph,
 
 init =  tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
 print("running the train loop")
-with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu_memory_fraction=0.5)))) as sess:
+with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu_memory_fraction=0.9)))) as sess:
 #with tf.device('/cpu:0'):
 #    with tf.Session() as sess:
     merged = tf.summary.merge_all()
