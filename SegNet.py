@@ -90,12 +90,12 @@ class SegNet(object):
 
         print("build decoder started")
 
-        self.upsample1 = self.pool.unpool(self.pool5,'pool5',"upsample_1", self.argmax1)
+        self.upsample1 = self.pool.unpool(self.pool5,'pool5',"upsample_1", self.argmax5)
         self.convD1_1 = self.conv_layer_decoder(self.upsample1, "convD1_1", 512)
         self.convD1_2 = self.conv_layer_decoder(self.convD1_1, "convD1_2", 512)
         self.convD1_3 = self.conv_layer_decoder(self.convD1_2, "convD1_3", 512)
 
-        self.upsample2 = self.pool.unpool(self.convD1_3,'pool4', "upsample_2", self.argmax2)
+        self.upsample2 = self.pool.unpool(self.convD1_3,'pool4', "upsample_2", self.argmax4)
         self.convD2_1 = self.conv_layer_decoder(self.upsample2, "convD2_1", 512)
         self.convD2_2 = self.conv_layer_decoder(self.convD2_1, "convD2_2", 512)
         self.convD2_3 = self.conv_layer_decoder(self.convD2_2, "convD2_3", 256)
@@ -105,11 +105,11 @@ class SegNet(object):
         self.convD3_2 = self.conv_layer_decoder(self.convD3_1, "convD3_2", 256)
         self.convD3_3 = self.conv_layer_decoder(self.convD3_2, "convD3_3", 128)
 
-        self.upsample4 = self.pool.unpool(self.convD3_3,'pool2', "upsample_4", self.argmax4)
+        self.upsample4 = self.pool.unpool(self.convD3_3,'pool2', "upsample_4", self.argmax2)
         self.convD4_1 = self.conv_layer_decoder(self.upsample4, "convD4_1", 128)
         self.convD4_2 = self.conv_layer_decoder(self.convD4_1, "convD4_2", 64)
 
-        self.upsample5 = self.pool.unpool(self.convD4_2,'pool1', "upsample_5", self.argmax5)
+        self.upsample5 = self.pool.unpool(self.convD4_2,'pool1', "upsample_5", self.argmax1)
         self.convD5_1 = self.conv_layer_decoder(self.upsample5, "convD5_1", 64)
         self.convD5_2 = self.conv_layer_decoder(self.convD5_1, "convD5_2", self.num_class)
 
