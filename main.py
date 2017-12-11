@@ -42,13 +42,13 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_integer('inputImX',352, 'Size of the x axis of the input image')
 tf.app.flags.DEFINE_integer('inputImY',480, 'Size of the y axis of the input image')
 tf.app.flags.DEFINE_bool('isTraining',True, 'Size of the y axis of the input image')
-tf.app.flags.DEFINE_string('images_path', './Data/images/*.png', 'Path for the images')
-tf.app.flags.DEFINE_string('labels_path', './Data/labels/*.png', 'Path for the labels images')
-tf.app.flags.DEFINE_string('MBF_weights_path','Data/labels/class_weights.txt','path to the MBF weights')
+tf.app.flags.DEFINE_string('images_path', '.\\Data\\images\\*.png', 'Path for the images')
+tf.app.flags.DEFINE_string('labels_path', '.\\Data\\labels\\*.png', 'Path for the labels images')
+tf.app.flags.DEFINE_string('MBF_weights_path','Data\\labels\\class_weights.txt','path to the MBF weights')
 
 
 timestr = time.strftime("%Y%m%d-%H%M%S")
-tensorboard_path=os.path.join("./Tensorboard", timestr)
+tensorboard_path=os.path.join(".\\Tensorboard", timestr)
 #sess = tf.InteractiveSession()
 
 images_ph = tf.placeholder(tf.float32, [None, FLAGS.inputImX, FLAGS.inputImY, 3])
@@ -62,7 +62,7 @@ phase_ph = tf.placeholder(tf.bool, name='phase')
 
 
 num_class = 12
-segnet = sn.SegNet(num_class = num_class)
+segnet = sn.SegNet(num_class = num_class, depthIncluded = 0)
 segnet.build(images_ph, phase_ph)
 
 batch = batch.batch(FLAGS)

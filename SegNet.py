@@ -12,7 +12,7 @@ FLAGS = tf.app.flags.FLAGS
 
 class SegNet(object):
     """Builds the SegNet model"""
-    def __init__(self, num_class, segnet_npy_path=None):
+    def __init__(self, num_class, segnet_npy_path=None, depthIncluded=0):
 
         #Loads the weights from the model
         if segnet_npy_path is None:
@@ -26,6 +26,7 @@ class SegNet(object):
         print("npy file loaded")
 
         self.num_class = num_class
+        self.depthIncluded = depthIncluded
 
         self.encoderbuilt = False
         self.decoderbuilt = False
@@ -131,17 +132,24 @@ class SegNet(object):
 
     def conv_layer(self, bottom, name):
         with tf.variable_scope(name):
-            filt = self.get_conv_filter(name)
 
-            conv = tf.nn.conv2d(bottom, filt, [1, 1, 1, 1], padding='SAME')
-            
+            filt = self.get_conv_filter(name)
+            conv_biases = self.get_bias(name)
+
+            if( (name == "conv1_1") && (self.depthIncluded == 1) )
+                averaged = np.average(filt, axis=2)
+                averaged = averaged.reshape(3,3,1,64)
+                averaged = averaged * 32
+                filt = np.append(filt, averaged, 2)
+                #Bias still missing here
+
+            conv = tf.nn.conv2d(bottom, filt, [1, 1, 1, 1], padding='SAME')            
+            bias = tf.nn.bias_add(conv, conv_biases)
+            relu = tf.nn.relu(self.batch_norm_layer(bias))
+
             print(name)
             print(conv.shape)
-            
-            conv_biases = self.get_bias(name)
-            bias = tf.nn.bias_add(conv, conv_biases)
 
-            relu = tf.nn.relu(self.batch_norm_layer(bias))
             return relu
 
     def get_conv_filter(self, name):
@@ -173,3 +181,4 @@ class SegNet(object):
     def batch_norm_layer(self, BNinput):
         #return input
         return tf.contrib.layers.batch_norm(BNinput, is_training = self.phase)
+
