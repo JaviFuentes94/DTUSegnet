@@ -21,6 +21,19 @@ import utils
 import training_ops
 import batch
 
+#Needed for running under aws
+# from tensorflow.python.framework import ops
+# from tensorflow.python.ops import gen_nn_ops
+# @ops.RegisterGradient("MaxPoolWithArgmax")
+# def _MaxPoolWithArgmaxGrad(op, grad, some_other_arg):
+#   return gen_nn_ops._max_pool_grad(op.inputs[0],
+#                                    op.outputs[0],
+#                                    grad,
+#                                    op.get_attr("ksize"),
+#                                    op.get_attr("strides"),
+#                                    padding=op.get_attr("padding"),
+#                                    data_format='NHWC')
+
 #Reset
 tf.reset_default_graph()
 
@@ -29,13 +42,13 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_integer('inputImX',352, 'Size of the x axis of the input image')
 tf.app.flags.DEFINE_integer('inputImY',480, 'Size of the y axis of the input image')
 tf.app.flags.DEFINE_bool('isTraining',True, 'Size of the y axis of the input image')
-tf.app.flags.DEFINE_string('images_path', './Data/images/*.png', 'Path for the images')
-tf.app.flags.DEFINE_string('labels_path', './Data/labels/*.png', 'Path for the labels images')
-tf.app.flags.DEFINE_string('MBF_weights_path','Data/labels/class_weights.txt','path to the MBF weights')
+tf.app.flags.DEFINE_string('images_path', '.\\Data\\images\\*.png', 'Path for the images')
+tf.app.flags.DEFINE_string('labels_path', '.\\Data\\labels\\*.png', 'Path for the labels images')
+tf.app.flags.DEFINE_string('MBF_weights_path','Data\\labels\\class_weights.txt','path to the MBF weights')
 
 
 timestr = time.strftime("%Y%m%d-%H%M%S")
-tensorboard_path=os.path.join("./Tensorboard", timestr)
+tensorboard_path=os.path.join(".\\Tensorboard", timestr)
 #sess = tf.InteractiveSession()
 
 images_ph = tf.placeholder(tf.float32, [None, FLAGS.inputImX, FLAGS.inputImY, 3])
@@ -49,7 +62,7 @@ phase_ph = tf.placeholder(tf.bool, name='phase')
 
 
 num_class = 12
-segnet = sn.SegNet(num_class = num_class)
+segnet = sn.SegNet(num_class = num_class, depthIncluded = 0)
 segnet.build(images_ph, phase_ph)
 
 batch = batch.batch(FLAGS)
@@ -61,7 +74,7 @@ G_acc_op, C_acc_opp = training_ops.calc_accuracy(segnet.argmax_layer, labels_ph,
 
 init =  tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
 print("running the train loop")
-with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu_memory_fraction=0.5)))) as sess:
+with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu_memory_fraction=0.9)))) as sess:
 #with tf.device('/cpu:0'):
 #    with tf.Session() as sess:
     merged = tf.summary.merge_all()

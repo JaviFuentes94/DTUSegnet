@@ -12,7 +12,7 @@ FLAGS = tf.app.flags.FLAGS
 
 class SegNet(object):
     """Builds the SegNet model"""
-    def __init__(self, num_class, segnet_npy_path=None):
+    def __init__(self, num_class, segnet_npy_path=None, depthIncluded=0):
 
         #Loads the weights from the model
         if segnet_npy_path is None:
@@ -26,6 +26,7 @@ class SegNet(object):
         print("npy file loaded")
 
         self.num_class = num_class
+        self.depthIncluded = depthIncluded
 
         self.encoderbuilt = False
         self.decoderbuilt = False
@@ -49,6 +50,7 @@ class SegNet(object):
 
         im_bgr=rgb2bgr(im_rgb)
         im_bgr= tf.nn.local_response_normalization(im_bgr)
+        
         self.convE1_1 = self.conv_layer(im_bgr, "conv1_1")
         self.convE1_2 = self.conv_layer(self.convE1_1, "conv1_2")
         self.pool1, self.argmax1 = self.pool.max_pool(self.convE1_2, 'pool1')
@@ -90,12 +92,12 @@ class SegNet(object):
 
         print("build decoder started")
 
-        self.upsample1 = self.pool.unpool(self.pool5,'pool5',"upsample_1", self.argmax1)
+        self.upsample1 = self.pool.unpool(self.pool5,'pool5',"upsample_1", self.argmax5)
         self.convD1_1 = self.conv_layer_decoder(self.upsample1, "convD1_1", 512)
         self.convD1_2 = self.conv_layer_decoder(self.convD1_1, "convD1_2", 512)
         self.convD1_3 = self.conv_layer_decoder(self.convD1_2, "convD1_3", 512)
 
-        self.upsample2 = self.pool.unpool(self.convD1_3,'pool4', "upsample_2", self.argmax2)
+        self.upsample2 = self.pool.unpool(self.convD1_3,'pool4', "upsample_2", self.argmax4)
         self.convD2_1 = self.conv_layer_decoder(self.upsample2, "convD2_1", 512)
         self.convD2_2 = self.conv_layer_decoder(self.convD2_1, "convD2_2", 512)
         self.convD2_3 = self.conv_layer_decoder(self.convD2_2, "convD2_3", 256)
@@ -105,11 +107,11 @@ class SegNet(object):
         self.convD3_2 = self.conv_layer_decoder(self.convD3_1, "convD3_2", 256)
         self.convD3_3 = self.conv_layer_decoder(self.convD3_2, "convD3_3", 128)
 
-        self.upsample4 = self.pool.unpool(self.convD3_3,'pool2', "upsample_4", self.argmax4)
+        self.upsample4 = self.pool.unpool(self.convD3_3,'pool2', "upsample_4", self.argmax2)
         self.convD4_1 = self.conv_layer_decoder(self.upsample4, "convD4_1", 128)
         self.convD4_2 = self.conv_layer_decoder(self.convD4_1, "convD4_2", 64)
 
-        self.upsample5 = self.pool.unpool(self.convD4_2,'pool1', "upsample_5", self.argmax5)
+        self.upsample5 = self.pool.unpool(self.convD4_2,'pool1', "upsample_5", self.argmax1)
         self.convD5_1 = self.conv_layer_decoder(self.upsample5, "convD5_1", 64)
         self.convD5_2 = self.conv_layer_decoder(self.convD5_1, "convD5_2", self.num_class)
 
@@ -131,21 +133,33 @@ class SegNet(object):
 
     def conv_layer(self, bottom, name):
         with tf.variable_scope(name):
-            filt = self.get_conv_filter(name)
 
-            conv = tf.nn.conv2d(bottom, filt, [1, 1, 1, 1], padding='SAME')
-            
+            filt = self.get_conv_filter(name)
+            conv_biases = self.get_bias(name)
+
+            conv = tf.nn.conv2d(bottom, filt, [1, 1, 1, 1], padding='SAME')            
+            bias = tf.nn.bias_add(conv, conv_biases)
+            relu = tf.nn.relu(self.batch_norm_layer(bias))
+
             print(name)
             print(conv.shape)
-            
-            conv_biases = self.get_bias(name)
-            bias = tf.nn.bias_add(conv, conv_biases)
+            print(filt.shape)
 
-            relu = tf.nn.relu(self.batch_norm_layer(bias))
             return relu
 
     def get_conv_filter(self, name):
-        return tf.Variable(self.data_dict[name][0], name="filter")
+
+        filt = self.data_dict[name][0]
+        
+        # If this is a network working on input with width channel, calc 1st layer wieghts
+        # As the average of RGB weights, then multiply by 32 to change the scale from 0-255 to 0-8m
+        if (name == "conv1_1") and (self.depthIncluded == 1):
+            averaged = np.average(filt, axis=2)
+            averaged = averaged.reshape(3,3,1,64)
+            averaged = averaged * 32
+            filt = np.append(filt, averaged, 2)
+        
+        return tf.Variable(filt, name="filter")
 
     def get_bias(self, name):
         return tf.Variable(self.data_dict[name][1], name="biases")
@@ -173,3 +187,4 @@ class SegNet(object):
     def batch_norm_layer(self, BNinput):
         #return input
         return tf.contrib.layers.batch_norm(BNinput, is_training = self.phase)
+
