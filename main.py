@@ -22,17 +22,17 @@ import training_ops
 import batch
 
 #Needed for running under aws
-from tensorflow.python.framework import ops
-from tensorflow.python.ops import gen_nn_ops
-@ops.RegisterGradient("MaxPoolWithArgmax")
-def _MaxPoolWithArgmaxGrad(op, grad, some_other_arg):
-  return gen_nn_ops._max_pool_grad(op.inputs[0],
-                                   op.outputs[0],
-                                   grad,
-                                   op.get_attr("ksize"),
-                                   op.get_attr("strides"),
-                                   padding=op.get_attr("padding"),
-                                   data_format='NHWC')
+# from tensorflow.python.framework import ops
+# from tensorflow.python.ops import gen_nn_ops
+# @ops.RegisterGradient("MaxPoolWithArgmax")
+# def _MaxPoolWithArgmaxGrad(op, grad, some_other_arg):
+#   return gen_nn_ops._max_pool_grad(op.inputs[0],
+#                                    op.outputs[0],
+#                                    grad,
+#                                    op.get_attr("ksize"),
+#                                    op.get_attr("strides"),
+#                                    padding=op.get_attr("padding"),
+#                                    data_format='NHWC')
 
 #Reset
 tf.reset_default_graph()
