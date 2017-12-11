@@ -136,12 +136,13 @@ class SegNet(object):
             filt = self.get_conv_filter(name)
             conv_biases = self.get_bias(name)
 
-            if( (name == "conv1_1") and (self.depthIncluded == 1) )
+            # If this is a network working on input with width channel, calc 1st layer wieghts
+            # As the average of RGB weights, then multiply by 32 to change the scale from 0-255 to 0-8m
+            if (name == "conv1_1") and (self.depthIncluded == 1):
                 averaged = np.average(filt, axis=2)
                 averaged = averaged.reshape(3,3,1,64)
                 averaged = averaged * 32
                 filt = np.append(filt, averaged, 2)
-                #Bias still missing here
 
             conv = tf.nn.conv2d(bottom, filt, [1, 1, 1, 1], padding='SAME')            
             bias = tf.nn.bias_add(conv, conv_biases)
