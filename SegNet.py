@@ -136,7 +136,7 @@ class SegNet(object):
             filt = self.get_conv_filter(name)
             conv_biases = self.get_bias(name)
 
-            if( (name == "conv1_1") && (self.depthIncluded == 1) )
+            if( (name == "conv1_1") and (self.depthIncluded == 1) )
                 averaged = np.average(filt, axis=2)
                 averaged = averaged.reshape(3,3,1,64)
                 averaged = averaged * 32
