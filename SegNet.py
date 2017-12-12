@@ -180,11 +180,11 @@ class SegNet(object):
             print(name)
             print(conv.shape)
 
-            conv = tf.nn.relu(self.batch_norm_layer(conv))
+            relu = tf.nn.relu(self.batch_norm_layer(conv))
 
-            return conv
+            return relu
+
 
     def batch_norm_layer(self, BNinput):
-        #return input
         return tf.contrib.layers.batch_norm(BNinput, is_training = self.phase)
 

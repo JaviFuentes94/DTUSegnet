@@ -43,7 +43,7 @@ class PoolingProcedure(object):
             flat_input_size = tf.reduce_prod(input_shape)
             flat_output_shape = [output_shape[0], output_shape[1] * output_shape[2] * output_shape[3]]
 
-            #Access indixes from the encoder layer through a dictionary
+            #Access indexes from the encoder layer through a dictionary
             ind = argmax
 
             pool_ = tf.reshape(input_layer, [flat_input_size])

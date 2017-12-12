@@ -21,19 +21,6 @@ import utils
 import training_ops
 import batch
 
-#Needed for running under aws
-# from tensorflow.python.framework import ops
-# from tensorflow.python.ops import gen_nn_ops
-# @ops.RegisterGradient("MaxPoolWithArgmax")
-# def _MaxPoolWithArgmaxGrad(op, grad, some_other_arg):
-#   return gen_nn_ops._max_pool_grad(op.inputs[0],
-#                                    op.outputs[0],
-#                                    grad,
-#                                    op.get_attr("ksize"),
-#                                    op.get_attr("strides"),
-#                                    padding=op.get_attr("padding"),
-#                                    data_format='NHWC')
-
 #Reset
 tf.reset_default_graph()
 
@@ -73,6 +60,7 @@ train_op = training_ops.train_network(loss_op)
 G_acc_op, C_acc_opp = training_ops.calc_accuracy(segnet.argmax_layer, labels_ph,num_class)
 
 init =  tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
+saver = tf.train.Saver()
 print("running the train loop")
 with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu_memory_fraction=0.9)))) as sess:
 #with tf.device('/cpu:0'):
@@ -90,15 +78,15 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
 	
     #feed_valid = {images_ph: v_im, labels_ph: v_lab}
 
-    print("number of trainable parameters :",np.sum([np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()]))
+    print("number of trainable parameters : ",np.sum([np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()]))
     for i in range(500000):
 
-        imgIn, imgLabel = batch.get_train(5)
+        imgIn, imgLabel = batch.get_train(3)
 
         feed_dict = {images_ph: imgIn, labels_ph: imgLabel, phase_ph: 1}
         fetches_train = [segnet.argmax_layer, merged, train_op, loss_op, MFB_loss_op]
         img, summary, _ , loss, MFB_loss = sess.run(fetches = fetches_train, feed_dict=feed_dict)
-        #tensorboard_writer.add_summary(summary,i)
+        tensorboard_writer.add_summary(summary,i)
 
         if (i%10)==0:
             #utils.show_image(img[0])
@@ -111,16 +99,28 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
             print("new epoch")
             current_epoch= batch.get_epoch()
             #G_acc, C_acc = sess.run(fetches_valid, feed_dict=feed_valid)
-            C_acc = []
-            G_acc = []
+            C_acc_val = []
+            G_acc_val = []
             for feed_valid in list_feed_valid:
                 res = sess.run(fetches_valid, feed_dict=feed_valid)
                 #ADDDDDD phase_ph = 0 here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! to feed_valid
-                G_acc.append(res[0])
-                C_acc.append(res[1])
-            G_acc = sum(G_acc)/len(G_acc)
-            C_acc = sum(C_acc)/len(C_acc)
-            print("NUMBER EPOCHS: ", current_epoch,"	Valid G_acc", G_acc, "C_acc", C_acc)
+                G_acc_val.append(res[0])
+                C_acc_val.append(res[1])
+            G_acc_val = sum(G_acc_val)/len(G_acc_val)
+            C_acc_val = sum(C_acc_val)/len(C_acc_val)
+            print("NUMBER EPOCHS: ", current_epoch,"	Valid G_acc", G_acc_val, "C_acc", C_acc_val)
+            #After 5 epoch save the model
+            if (current_epoch%5)==0:
+                #Save them as a constant so that we can access them later
+                testLoss=tf.Constant(loss)
+                MFBLoss=tf.Constant(MFB_loss)
+                GAcc=tf.Constant(G_acc)
+                CAcc=tf.Constant(C_acc)
+                CAccVal=tf.Constant(C_acc_val)
+                GAccVal=tf.Constant(G_acc_val)
+                save_path = saver.save(sess, "./Models/model.ckpt", global_step = current_epoch)
+                print("Model saved in file: %s" % save_path) 
+            
             #if current_epoch > -1:
             #if current_epoch % 10 == 0:
                 #utils.show_image(img[0])
