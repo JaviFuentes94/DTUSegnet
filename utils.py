@@ -79,6 +79,7 @@ def show_image(img):
     print('Image content')
     print(img)
     img = gray_to_RGB(img)
+
     #plt.imshow(img)
     #plt.show()
     return img
