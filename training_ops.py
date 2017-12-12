@@ -41,22 +41,16 @@ def calc_MFB_loss(predictions, labels, num_class,FLAGS):
         flattened_labels = tf.reshape(labels, [tf.shape(labels)[0],-1])
         # One-hot labels
         one_hot_labels = tf.one_hot(flattened_labels, depth=num_class)
-        print("one_hot_labels",one_hot_labels.shape)
         #Calculate softmax of predictions
         softmax_predictions = tf.nn.softmax(flattened_predictions)
-        print("softmax_predictions",softmax_predictions.shape)
         test = (one_hot_labels * tf.log(softmax_predictions + 1e-10))
-        print("test",test.shape)
         test2 = tf.multiply(test,median_frequencies)
-        print("test2",test2.shape)
-        
+
         #Calculate cross-entropy including median-frequency weighting
         cross_entropy = -tf.reduce_sum(test2, axis=[2])
-        print("cross_entropy1",cross_entropy.shape)
 
 	#Sum over all pixels
         cross_entropy = tf.reduce_sum(cross_entropy, axis=[1])
-        print("cross_entropy2",cross_entropy.shape)
 
    	# Average over samples
    	# Averaging makes the loss invariant to batch size, which is very nice.
@@ -66,18 +60,15 @@ def calc_MFB_loss(predictions, labels, num_class,FLAGS):
         return cross_entropy
 
 # 2) Define accuracy
-def calc_accuracy(predictions, labels, num_class):
+def calc_accuracy(predictions, labels, num_class, phase_ph):
     with tf.variable_scope("Accuracy"):
         # Calculate the number of pixels with the same value in pred and lab
         predictions = tf.cast(predictions, tf.int32)
         equal_elements = tf.equal(predictions, labels)
-        num_equal_elements = tf.reduce_sum(tf.cast(equal_elements, tf.int32))
+        num_equal_elements = tf.reduce_sum(tf.cast(equal_elements, tf.int32),axis=[1,2])
         #Calculate global accuracy as fraction of matching pixels
-        G_accuracy = num_equal_elements/tf.size(labels)
-        tf.summary.scalar("G_Accuracy", G_accuracy)
-        #C_accuracy,test = tf.metrics.mean_per_class_accuracy(tf.reshape(labels,[-1]),tf.reshape(predictions,[-1]),num_class)
-        #print(C_accuracy,test)
-        #C_accuracy = tf.reduce_mean(C_accuracy)
+        G_accuracies = tf.divide(num_equal_elements,tf.size(labels[0]))
+        G_accuracy = tf.reduce_mean(G_accuracies)
 
         CM = tf.confusion_matrix(tf.reshape(labels,[-1]),tf.reshape(predictions,[-1]),num_class)
         CM_row_sum = tf.to_float(tf.reduce_sum(CM,1))
@@ -85,9 +76,9 @@ def calc_accuracy(predictions, labels, num_class):
         CM_diag = tf.to_float(tf.diag_part(CM))
         C_accuracies = tf.div(CM_diag, CM_row_sum)
         C_accuracy = tf.reduce_mean(C_accuracies)
-        print(C_accuracies.shape,C_accuracy.shape)
+        #tf.summary.scalar("G_Accuracy", G_accuracy)
         #tf.summary.scalar("C_Accuracy", C_accuracy)
-        return G_accuracy, C_accuracy
+        return G_accuracy, C_accuracy, G_accuracies, C_accuracies
 
 # 3) Define the training op
 def train_network(loss):

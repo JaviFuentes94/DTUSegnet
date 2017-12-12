@@ -50,7 +50,7 @@ class SegNet(object):
 
         im_bgr=rgb2bgr(im_rgb)
         im_bgr= tf.nn.local_response_normalization(im_bgr)
-        
+
         self.convE1_1 = self.conv_layer(im_bgr, "conv1_1")
         self.convE1_2 = self.conv_layer(self.convE1_1, "conv1_2")
         self.pool1, self.argmax1 = self.pool.max_pool(self.convE1_2, 'pool1')
@@ -120,13 +120,13 @@ class SegNet(object):
         #this for each pixel goes through num_class classes
         with tf.name_scope("softmax"):
             self.softmax_layer = tf.nn.softmax(self.convD5_2)
-        print("softmax_layer", self.softmax_layer.shape)
+        #print("softmax_layer", self.softmax_layer.shape)
         #Create an image with classicifactions might be not neccessary as well
         #this for each pixel returns the class with biggest probability
         with tf.name_scope("argmax"):
             self.argmax_layer = tf.argmax(self.softmax_layer, 3)
             img_summary = tf.summary.image('Result_image', tf.expand_dims(tf.to_float(self.argmax_layer), 3))
-            print("armax_layer", self.argmax_layer.shape)
+            #print("armax_layer", self.argmax_layer.shape)
             #img = gray_to_RGB(tf.to_float(self.argmax_layer[0]))
             #img_summary = tf.summary.image('Result image',img)
         print(("build Decoder finished: %ds" % (time.time() - start_time)))
@@ -137,20 +137,20 @@ class SegNet(object):
             filt = self.get_conv_filter(name)
             conv_biases = self.get_bias(name)
 
-            conv = tf.nn.conv2d(bottom, filt, [1, 1, 1, 1], padding='SAME')            
+            conv = tf.nn.conv2d(bottom, filt, [1, 1, 1, 1], padding='SAME')
             bias = tf.nn.bias_add(conv, conv_biases)
             relu = tf.nn.relu(self.batch_norm_layer(bias))
 
-            print(name)
-            print(conv.shape)
-            print(filt.shape)
+            #print(name)
+            #print(conv.shape)
+            #print(filt.shape)
 
             return relu
 
     def get_conv_filter(self, name):
 
         filt = self.data_dict[name][0]
-        
+
         # If this is a network working on input with width channel, calc 1st layer wieghts
         # As the average of RGB weights, then multiply by 32 to change the scale from 0-255 to 0-8m
         if (name == "conv1_1") and (self.depthIncluded == 1):
@@ -158,7 +158,7 @@ class SegNet(object):
             averaged = averaged.reshape(3,3,1,64)
             averaged = averaged * 32
             filt = np.append(filt, averaged, 2)
-        
+
         return tf.Variable(filt, name="filter")
 
     def get_bias(self, name):
@@ -177,8 +177,8 @@ class SegNet(object):
                 bias_initializer=tf.zeros_initializer(),
                 activation=None,
                 name = name)
-            print(name)
-            print(conv.shape)
+            #print(name)
+            #print(conv.shape)
 
             conv = tf.nn.relu(self.batch_norm_layer(conv))
 
@@ -187,4 +187,3 @@ class SegNet(object):
     def batch_norm_layer(self, BNinput):
         #return input
         return tf.contrib.layers.batch_norm(BNinput, is_training = self.phase)
-

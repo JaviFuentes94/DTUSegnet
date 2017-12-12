@@ -17,12 +17,13 @@ FLAGS = tf.app.flags.FLAGS
 def load_image_input(path):
     # load image
     img = skimage.io.imread(path)
+    print(img.shape)
     #Why do we need to scale it?
     img = img / 255.0
     assert (0 <= img).all() and (img <= 1.0).all()
     # print "Original Image Shape: ", img.shape
     # we crop image from center
-   
+
     if FLAGS.inputImX is not 360:
 
         img = img[:FLAGS.inputImX,:]
@@ -48,7 +49,7 @@ def load_image_labels(path):
     '''Load the labels image without scaling'''
     img = skimage.io.imread(path)
 
-    
+
     if FLAGS.inputImX is not 360:
 
         img = img[:FLAGS.inputImX,:]

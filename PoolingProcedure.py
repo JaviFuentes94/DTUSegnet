@@ -19,8 +19,8 @@ class PoolingProcedure(object):
             layer, argmax = tf.nn.max_pool_with_argmax(input_layer, self.ksize, strides=[1, 2, 2, 1], padding='SAME', name=name)
             self.upsample_idx_dict[name]=argmax
             #DEBUG
-            print(name)
-            print(layer.shape)
+            #print(name)
+            #print(layer.shape)
             return layer, argmax
 
     def unpool(self, input_layer, encoder_layer_name, decoder_layer_name, argmax):
@@ -36,7 +36,7 @@ class PoolingProcedure(object):
            Inspired by the implementation discussed in https://github.com/tensorflow/tensorflow/issues/2169
         """
         with tf.variable_scope(decoder_layer_name):
-            
+
             input_shape = tf.shape(input_layer)
             output_shape = [input_shape[0], input_shape[1] * self.ksize[1], input_shape[2]*self.ksize[2], input_shape[3]]
 
@@ -47,7 +47,7 @@ class PoolingProcedure(object):
             ind = argmax
 
             pool_ = tf.reshape(input_layer, [flat_input_size])
-            batch_range = tf.reshape(tf.range(tf.cast(output_shape[0], tf.int64), dtype=ind.dtype), 
+            batch_range = tf.reshape(tf.range(tf.cast(output_shape[0], tf.int64), dtype=ind.dtype),
                                               shape=[input_shape[0], 1, 1, 1])
 
             b = tf.ones_like(ind) * batch_range
@@ -63,8 +63,6 @@ class PoolingProcedure(object):
             ret.set_shape(set_output_shape)
 
             #DEBUG
-            print(decoder_layer_name)
-            print(ret.shape)
+            #print(decoder_layer_name)
+            #print(ret.shape)
             return ret
-
-
