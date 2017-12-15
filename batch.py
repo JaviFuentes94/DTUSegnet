@@ -47,7 +47,7 @@ class batch:
         print("train size: ",self.train_size,"  test size: ",self.test_size)
 
     def get_train(self,size):
-        if self.current_batch_train + size>= self.train_size:
+        if self.current_batch_train + size >= self.train_size:
             self.epoch+=1
             self.current_batch_train=0
             random.shuffle(self.train_rand_idx)
