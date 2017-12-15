@@ -17,7 +17,7 @@ FLAGS = tf.app.flags.FLAGS
 def load_image_input(path):
     # load image
     img = skimage.io.imread(path)
-    print(img.shape)
+    #print(img.shape)
     #Why do we need to scale it?
     img = img / 255.0
     assert (0 <= img).all() and (img <= 1.0).all()

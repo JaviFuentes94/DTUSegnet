@@ -55,7 +55,8 @@ class batch:
         b_lab = np.zeros((size, FLAGS.inputImX, FLAGS.inputImY))
         if self.inRAM:
             for i in range(size):
-                idx = self.train_rand_idx[self.current_batch+i]
+                #print("i: %s", i, " current_batch: %s",self.current_batch_train, "size trainrandidx: %s", len(self.train_rand_idx))
+                idx = self.train_rand_idx[self.current_batch_train+i]
                 b_im[i] = self.train_images[idx]
                 b_lab[i] = self.train_labels[idx]
         else:
