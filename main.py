@@ -80,8 +80,8 @@ segnet.build(images_ph, phase_ph)
 
 ### DEFINING THE OPERATIONS ###
 loss_op = training_ops.calc_loss(segnet.convD5_2, labels_ph, num_class)
-#MFB_loss_op = training_ops.calc_MFB_loss(segnet.convD5_2, labels_ph, num_class,FLAGS)
-MFB_loss_op = loss_op
+MFB_loss_op = training_ops.calc_MFB_loss(segnet.convD5_2, labels_ph, num_class,FLAGS)
+#MFB_loss_op = loss_op
 train_op = training_ops.train_network(loss_op)
 G_acc_op, C_acc_opp, G_accs_op, C_accs_opp  = training_ops.calc_accuracy(segnet.argmax_layer, labels_ph,num_class, phase_ph)
 
@@ -92,14 +92,13 @@ test_len = test_im.shape[0]
 fetches_test = [G_accs_op, C_accs_opp]
 chunk_size = 10
 list_feed_test = []
-list_sizes = []
 for s in range(0,test_len,chunk_size):
     if s+chunk_size-1 >= test_len:
-        e = test_im.shape[0]-1
+        e = test_im.shape[0]
     else:
-        e = s+chunk_size-1
+        e = s+chunk_size
     list_feed_test.append({images_ph: test_im[s:e], labels_ph: test_lab[s:e], phase_ph: 0})
-    list_sizes.append(e-s+1)
+
 init =  tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
 saver = tf.train.Saver(tf.global_variables())
 print("running the train loop")
@@ -124,21 +123,22 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
             #utils.show_image(imgIn[0])
             #utils.show_image(imgLabel[0])
             G_acc, C_acc = sess.run(fetches = [G_acc_op, C_acc_opp], feed_dict=feed_dict)
-            print(i,"	Test loss",loss,"	MFB loss", MFB_loss,"	G_acc", G_acc, "	C_acc", C_acc)
+            print(i,"	Train loss",loss,"	MFB loss", MFB_loss,"	G_acc", G_acc, "	C_acc", C_acc)
 
         if batch.get_epoch() > current_epoch:
             print("new epoch")
             current_epoch= batch.get_epoch()
-            C_acc_val = []
-            G_acc_val = []
+            C_acc_test = []
+            G_acc_test = []
             for feed_test in list_feed_test:
                 res = sess.run(fetches_test, feed_dict=feed_test)
-                C_acc_val.append(res[1])
-                G_acc_val.append(res[0])
-                #print("chunk G_acc", res[0], "C_acc", res[1])
-            G_accv = tf.reduce_mean(tf.concat(G_acc_val,axis = 0)).eval()
-            C_accv = tf.reduce_mean(tf.concat(C_acc_val,axis = 0)).eval()
-            print("NUMBER EPOCHS: ", current_epoch,"	Valid G_acc", G_accv, "C_acc", C_accv)
+                G_acc_test.append(res[0])
+                C_acc_test.append(res[1])
+            G_acc_test = tf.concat(G_acc_test,axis = 0)
+            C_acc_test = tf.concat(C_acc_test,axis = 0)
+            G_acc = tf.reduce_mean(G_acc_test).eval()
+            C_acc = tf.reduce_mean(C_acc_test).eval()
+            print("EPOCHS: ", current_epoch,"	Test G_acc", G_acc, "C_acc", C_acc)
             #After 5 epoch save the model
             if (current_epoch%5)==0:
                 save_path = saver.save(sess, "./Models/model.ckpt", global_step = current_epoch)

@@ -47,7 +47,7 @@ class batch:
         print("train size: ",self.train_size,"  test size: ",self.test_size)
 
     def get_train(self,size):
-        if self.current_batch_train + size>= self.train_size:
+        if self.current_batch_train + size >= self.train_size:
             self.epoch+=1
             self.current_batch_train=0
             random.shuffle(self.train_rand_idx)
@@ -55,7 +55,6 @@ class batch:
         b_lab = np.zeros((size, FLAGS.inputImX, FLAGS.inputImY))
         if self.inRAM:
             for i in range(size):
-                #print("i: %s", i, " current_batch: %s",self.current_batch_train, "size trainrandidx: %s", len(self.train_rand_idx))
                 idx = self.train_rand_idx[self.current_batch_train+i]
                 b_im[i] = self.train_images[idx]
                 b_lab[i] = self.train_labels[idx]
