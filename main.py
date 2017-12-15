@@ -65,7 +65,7 @@ tf.app.flags.DEFINE_string('SUNRGBD_test_depth_path', './SUNRGBD/test_depth/*.pn
 tf.app.flags.DEFINE_string('SUNRGBD_train_depth_path', './SUNRGBD/train_depth/*.png', 'Path for the train depths')
 timestr = time.strftime("%Y%m%d-%H%M%S")
 
-tensorboard_path=os.path.join(".\\Tensorboard", timestr)
+tensorboard_path=os.path.join("./Tensorboard", timestr)
 
 ### DEFINING THE PLACEHOLDERS ###
 images_ph = tf.placeholder(tf.float32, [None, FLAGS.inputImX, FLAGS.inputImY, 3])
@@ -79,8 +79,8 @@ segnet.build(images_ph, phase_ph)
 
 ### DEFINING THE OPERATIONS ###
 loss_op = training_ops.calc_loss(segnet.convD5_2, labels_ph, num_class)
-#MFB_loss_op = training_ops.calc_MFB_loss(segnet.convD5_2, labels_ph, num_class,FLAGS)
-MFB_loss_op = loss_op
+MFB_loss_op = training_ops.calc_MFB_loss(segnet.convD5_2, labels_ph, num_class,FLAGS)
+#MFB_loss_op = loss_op
 train_op = training_ops.train_network(loss_op)
 G_acc_op, C_acc_opp, G_accs_op, C_accs_opp  = training_ops.calc_accuracy(segnet.argmax_layer, labels_ph,num_class, phase_ph)
 
@@ -96,9 +96,7 @@ for s in range(0,test_len,chunk_size):
         e = test_im.shape[0]
     else:
         e = s+chunk_size
-    print(test_im[s:e].shape)
     list_feed_test.append({images_ph: test_im[s:e], labels_ph: test_lab[s:e], phase_ph: 0})
-
 
 init =  tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
 saver = tf.train.Saver()
@@ -137,8 +135,6 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
                 C_acc_test.append(res[1])
             G_acc_test = tf.concat(G_acc_test,axis = 0)
             C_acc_test = tf.concat(C_acc_test,axis = 0)
-            print(G_acc_test.shape)
-            print(G_acc_test.eval())
             G_acc = tf.reduce_mean(G_acc_test).eval()
             C_acc = tf.reduce_mean(C_acc_test).eval()
             print("EPOCHS: ", current_epoch,"	Test G_acc", G_acc, "C_acc", C_acc)
