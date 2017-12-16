@@ -4,7 +4,7 @@ import utils
 import numpy as np
 import tensorflow as tf
 import time
-
+from random import randint
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -16,6 +16,8 @@ class batch:
             self.train_labels_filenames = glob.glob(FLAGS.CamVid_train_labels_path)
             self.test_images_filenames = glob.glob(FLAGS.CamVid_test_images_path)
             self.test_labels_filenames = glob.glob(FLAGS.CamVid_test_labels_path)
+            self.val_images_filenames = glob.glob(FLAGS.CamVid_validation_images_path)
+            self.val_labels_filenames = glob.glob(FLAGS.CamVid_validation_labels_path)
         else:
             self.train_images_filenames = glob.glob(FLAGS.SUNRGBD_train_images_path)
             self.train_labels_filenames = glob.glob(FLAGS.SUNRGBD_train_labels_path)
@@ -51,11 +53,12 @@ class batch:
             self.epoch+=1
             self.current_batch_train=0
             random.shuffle(self.train_rand_idx)
-        b_im = np.zeros((size, FLAGS.inputImX, FLAGS.inputImY, 3))
+        b_im = np.zeros((size, FLAGS.inputImX, FLAGS.inputImY, 3)) #Should it be 4 for depth?
         b_lab = np.zeros((size, FLAGS.inputImX, FLAGS.inputImY))
         if self.inRAM:
             for i in range(size):
-                idx = self.train_rand_idx[self.current_batch+i]
+                print("i: ", i, " current_batch: ",self.current_batch_train, " size trainrandidx: ", len(self.train_rand_idx))
+                idx = self.train_rand_idx[self.current_batch_train+i]
                 b_im[i] = self.train_images[idx]
                 b_lab[i] = self.train_labels[idx]
         else:
@@ -79,4 +82,26 @@ class batch:
             for i in range(size):
                 b_im[i] = utils.load_image_input(self.test_images_filenames[i])
                 b_lab[i] = utils.load_image_labels(self.test_labels_filenames[i])
-            return b_im, b_lab
+            return b_im, b_lab\
+
+    def get_train_all(self):
+        if self.inRAM:
+            return np.asarray(self.train_images), np.asarray(self.train_labels)
+        else:
+            size = 5
+            tr_im = np.zeros((size, FLAGS.inputImX, FLAGS.inputImY, 3))
+            tr_lab = np.zeros((size, FLAGS.inputImX, FLAGS.inputImY))
+            for i in range(size):
+                tr_im[i] = utils.load_image_input(self.train_images_filenames[i])
+                tr_lab[i] = utils.load_image_labels(self.train_labels_filenames[i])
+            return tr_im, tr_lab\
+
+    def get_validation(self):
+        self.val_images = np.asarray([utils.load_image_input(i) for i in self.val_images_filenames])
+        self.val_labels = np.asarray([utils.load_image_labels(i) for i in self.val_labels_filenames])
+        return self.val_images, self.val_labels
+
+    def get_visualization_images(self, nImages):
+        '''Gets nImages random images from the test set to show'''
+        indexes=[randint(1,self.test_size-1) for i in range(0,nImages)]
+        return self.test_images[indexes],self.test_labels[indexes]

@@ -76,8 +76,8 @@ def calc_accuracy(predictions, labels, num_class, phase_ph):
         CM_diag = tf.to_float(tf.diag_part(CM))
         C_accuracies = tf.div(CM_diag, CM_row_sum)
         C_accuracy = tf.reduce_mean(C_accuracies)
-        #tf.summary.scalar("G_Accuracy", G_accuracy)
-        #tf.summary.scalar("C_Accuracy", C_accuracy)
+        tf.summary.scalar("G_Accuracy", G_accuracy)
+        tf.summary.scalar("C_Accuracy", C_accuracy)
         return G_accuracy, C_accuracy, G_accuracies, C_accuracies
 
 # 3) Define the training op

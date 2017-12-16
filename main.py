@@ -38,31 +38,31 @@ tf.app.flags.DEFINE_integer('inputImX',352, 'Size of the x axis of the input ima
 tf.app.flags.DEFINE_integer('inputImY',480, 'Size of the y axis of the input image')
 tf.app.flags.DEFINE_bool('isTraining',True, 'Size of the y axis of the input image')
 
-tf.app.flags.DEFINE_string('CamVid_test_images_path', '.\\CamVid\\test_images\\*.png', 'Path for the test images')
-tf.app.flags.DEFINE_string('CamVid_train_images_path', '.\\CamVid\\train_images\\*.png', 'Path for the train images')
-tf.app.flags.DEFINE_string('CamVid_test_labels_path', '.\\CamVid\\test_labels\\*.png', 'Path for the test labels')
-tf.app.flags.DEFINE_string('CamVid_train_labels_path', '.\\CamVid\\train_labels\\*.png', 'Path for the train labels')
-tf.app.flags.DEFINE_string('MBF_weights_path','Data\\labels\\class_weights.txt','path to the MBF weights')
+#tf.app.flags.DEFINE_string('CamVid_test_images_path', '.\\CamVid\\test_images\\*.png', 'Path for the test images')
+#tf.app.flags.DEFINE_string('CamVid_train_images_path', '.\\CamVid\\train_images\\*.png', 'Path for the train images')
+#tf.app.flags.DEFINE_string('CamVid_test_labels_path', '.\\CamVid\\test_labels\\*.png', 'Path for the test labels')
+#tf.app.flags.DEFINE_string('CamVid_train_labels_path', '.\\CamVid\\train_labels\\*.png', 'Path for the train labels')
+#tf.app.flags.DEFINE_string('MBF_weights_path','Data\\labels\\class_weights.txt','path to the MBF weights')
 
-tf.app.flags.DEFINE_string('SUNRGBD_test_images_path', '.\\SUNRGBD\\test_images\\*.jpg', 'Path for the test images')
-tf.app.flags.DEFINE_string('SUNRGBD_train_images_path', '.\\SUNRGBD\\train_images\\*.jpg', 'Path for the train images')
-tf.app.flags.DEFINE_string('SUNRGBD_test_labels_path', '.\\SUNRGBD\\test_labels\\*.png', 'Path for the test labels')
-tf.app.flags.DEFINE_string('SUNRGBD_train_labels_path', '.\\SUNRGBD\\train_labels\\*.png', 'Path for the train labels')
-tf.app.flags.DEFINE_string('SUNRGBD_test_depth_path', '.\\SUNRGBD\\test_depth\\*.png', 'Path for the test depths')
-tf.app.flags.DEFINE_string('SUNRGBD_train_depth_path', '.\\SUNRGBD\\train_depth\\*.png', 'Path for the train depths')
+#tf.app.flags.DEFINE_string('SUNRGBD_test_images_path', '.\\SUNRGBD\\test_images\\*.jpg', 'Path for the test images')
+#tf.app.flags.DEFINE_string('SUNRGBD_train_images_path', '.\\SUNRGBD\\train_images\\*.jpg', 'Path for the train images')
+#tf.app.flags.DEFINE_string('SUNRGBD_test_labels_path', '.\\SUNRGBD\\test_labels\\*.png', 'Path for the test labels')
+#tf.app.flags.DEFINE_string('SUNRGBD_train_labels_path', '.\\SUNRGBD\\train_labels\\*.png', 'Path for the train labels')
+#tf.app.flags.DEFINE_string('SUNRGBD_test_depth_path', '.\\SUNRGBD\\test_depth\\*.png', 'Path for the test depths')
+#tf.app.flags.DEFINE_string('SUNRGBD_train_depth_path', '.\\SUNRGBD\\train_depth\\*.png', 'Path for the train depths')
 
-# tf.app.flags.DEFINE_string('CamVid_test_images_path', './CamVid/test_images/*png', 'Path for the test images')
-# tf.app.flags.DEFINE_string('CamVid_train_images_path', './CamVid/train_images/*png', 'Path for the train images')
-# tf.app.flags.DEFINE_string('CamVid_test_labels_path', './CamVid/test_labels/*png', 'Path for the test labels')
-# tf.app.flags.DEFINE_string('CamVid_train_labels_path', './CamVid/train_labels/*png', 'Path for the train labels')
-# tf.app.flags.DEFINE_string('MBF_weights_path','CamVid/class_weights.txt','path to the MBF weights')
-#
-# tf.app.flags.DEFINE_string('SUNRGBD_test_images_path', './SUNRGBD/test_images/*.jpg', 'Path for the test images')
-# tf.app.flags.DEFINE_string('SUNRGBD_train_images_path', './SUNRGBD/train_images/*.jpg', 'Path for the train images')
-# tf.app.flags.DEFINE_string('SUNRGBD_test_labels_path', './SUNRGBD/test_labels/*.png', 'Path for the test labels')
-# tf.app.flags.DEFINE_string('SUNRGBD_train_labels_path', './SUNRGBD/train_labels/*.png', 'Path for the train labels')
-# tf.app.flags.DEFINE_string('SUNRGBD_test_depth_path', './SUNRGBD/test_depth/*.png', 'Path for the test depths')
-# tf.app.flags.DEFINE_string('SUNRGBD_train_depth_path', './SUNRGBD/train_depth/*.png', 'Path for the train depths')
+tf.app.flags.DEFINE_string('CamVid_test_images_path', './CamVid/test_images/*png', 'Path for the test images')
+tf.app.flags.DEFINE_string('CamVid_train_images_path', './CamVid/train_images/*png', 'Path for the train images')
+tf.app.flags.DEFINE_string('CamVid_test_labels_path', './CamVid/test_labels/*png', 'Path for the test labels')
+tf.app.flags.DEFINE_string('CamVid_train_labels_path', './CamVid/train_labels/*png', 'Path for the train labels')
+tf.app.flags.DEFINE_string('MBF_weights_path','CamVid/class_weights.txt','path to the MBF weights')
+
+tf.app.flags.DEFINE_string('SUNRGBD_test_images_path', './SUNRGBD/test_images/*.jpg', 'Path for the test images')
+tf.app.flags.DEFINE_string('SUNRGBD_train_images_path', './SUNRGBD/train_images/*.jpg', 'Path for the train images')
+tf.app.flags.DEFINE_string('SUNRGBD_test_labels_path', './SUNRGBD/test_labels/*.png', 'Path for the test labels')
+tf.app.flags.DEFINE_string('SUNRGBD_train_labels_path', './SUNRGBD/train_labels/*.png', 'Path for the train labels')
+tf.app.flags.DEFINE_string('SUNRGBD_test_depth_path', './SUNRGBD/test_depth/*.png', 'Path for the test depths')
+tf.app.flags.DEFINE_string('SUNRGBD_train_depth_path', './SUNRGBD/train_depth/*.png', 'Path for the train depths')
 timestr = time.strftime("%Y%m%d-%H%M%S")
 
 tensorboard_path=os.path.join(".\\Tensorboard", timestr)
@@ -119,9 +119,6 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
         tensorboard_writer.add_summary(summary,i)
 
         if (i%10)==0:
-            #utils.show_image(img[0])
-            #utils.show_image(imgIn[0])
-            #utils.show_image(imgLabel[0])
             G_acc, C_acc = sess.run(fetches = [G_acc_op, C_acc_opp], feed_dict=feed_dict)
             print(i,"	Test loss",loss,"	MFB loss", MFB_loss,"	G_acc", G_acc, "	C_acc", C_acc)
 
@@ -132,20 +129,13 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
             G_acc_val = []
             for feed_test in list_feed_test:
                 res = sess.run(fetches_test, feed_dict=feed_test)
-                C_acc_val.append(res[0])
-                G_acc_val.append(res[1])
+                G_acc_val.append(res[0])
+                C_acc_val.append(res[1])
             G_acc = tf.reduce_mean(tf.concat(G_acc_val,axis = 0)).eval()
             C_acc = tf.reduce_mean(tf.concat(C_acc_val,axis = 0)).eval()
             print("NUMBER EPOCHS: ", current_epoch,"	Valid G_acc", G_acc, "C_acc", C_acc)
             #After 5 epoch save the model
             if (current_epoch%5)==0:
-                #Save them as a constant so that we can access them later
-                testLoss=tf.Constant(loss)
-                MFBLoss=tf.Constant(MFB_loss)
-                GAcc=tf.Constant(G_acc)
-                CAcc=tf.Constant(C_acc)
-                CAccVal=tf.Constant(C_acc_val)
-                GAccVal=tf.Constant(G_acc_val)
                 save_path = saver.save(sess, "./Models/model.ckpt", global_step = current_epoch)
                 print("Model saved in file: %s" % save_path)
 
