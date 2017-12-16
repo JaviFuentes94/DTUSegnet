@@ -49,7 +49,7 @@ class batch:
         print("train size: ",self.train_size,"  test size: ",self.test_size)
 
     def get_train(self,size):
-        if self.current_batch_train + size>= self.train_size:
+        if self.current_batch_train + size >= self.train_size:
             self.epoch+=1
             self.current_batch_train=0
             random.shuffle(self.train_rand_idx)
@@ -57,7 +57,7 @@ class batch:
         b_lab = np.zeros((size, FLAGS.inputImX, FLAGS.inputImY))
         if self.inRAM:
             for i in range(size):
-                print("i: ", i, " current_batch: ",self.current_batch_train, " size trainrandidx: ", len(self.train_rand_idx))
+                #print("i: ", i, " current_batch: ",self.current_batch_train, " size trainrandidx: ", len(self.train_rand_idx))
                 idx = self.train_rand_idx[self.current_batch_train+i]
                 b_im[i] = self.train_images[idx]
                 b_lab[i] = self.train_labels[idx]
@@ -105,3 +105,21 @@ class batch:
         '''Gets nImages random images from the test set to show'''
         indexes=[randint(1,self.test_size-1) for i in range(0,nImages)]
         return self.test_images[indexes],self.test_labels[indexes]
+
+
+    def get_batch_test(self,s,e):
+            b_im = np.zeros((e-s, FLAGS.inputImX, FLAGS.inputImY, 3))
+            b_lab = np.zeros((e-s, FLAGS.inputImX, FLAGS.inputImY))
+            print(e,s,e-s)
+            if self.inRAM:
+                for i,idx in enumerate(range(s,e)):
+                    b_im[i] = self.test_images[idx]
+                    b_lab[i] = self.test_labels[idx]
+            else:
+                for i,idx in enumerate(range(s,e)):
+                    print(idx)
+                    b_im[i] = utils.load_image_input(self.test_images_filenames[idx])
+                    b_lab[i] = utils.load_image_labels(self.test_labels_filenames[idx])
+            return b_im, b_lab
+
+
