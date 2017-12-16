@@ -69,14 +69,19 @@ class batch:
     def get_epoch(self):
         return self.epoch
 
-    def get_test(self):
-        if self.inRAM:
-            return self.test_images, self.test_labels
-        else:
-            size = 5
-            b_im = np.zeros((size, FLAGS.inputImX, FLAGS.inputImY, 3))
-            b_lab = np.zeros((size, FLAGS.inputImX, FLAGS.inputImY))
-            for i in range(size):
-                b_im[i] = utils.load_image_input(self.test_images_filenames[i])
-                b_lab[i] = utils.load_image_labels(self.test_labels_filenames[i])
+
+    def get_batch_test(self,s,e):
+            b_im = np.zeros((e-s, FLAGS.inputImX, FLAGS.inputImY, 3))
+            b_lab = np.zeros((e-s, FLAGS.inputImX, FLAGS.inputImY))
+            print(e,s,e-s)
+            if self.inRAM:
+                for i,idx in enumerate(range(s,e)):
+                    b_im[i] = self.test_images[idx]
+                    b_lab[i] = self.test_labels[idx]
+            else:
+                for i,idx in enumerate(range(s,e)):
+                    print(idx)
+                    b_im[i] = utils.load_image_input(self.test_images_filenames[idx])
+                    b_lab[i] = utils.load_image_labels(self.test_labels_filenames[idx])
             return b_im, b_lab
+

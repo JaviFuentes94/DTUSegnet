@@ -55,7 +55,7 @@ class batch:
         b_lab = np.zeros((size, FLAGS.inputImX, FLAGS.inputImY))
         if self.inRAM:
             for i in range(size):
-                idx = self.train_rand_idx[self.current_batch+i]
+                idx = self.train_rand_idx[self.current_batch_train+i]
                 b_im[i] = self.train_images[idx]
                 b_lab[i] = self.train_labels[idx]
         else:
@@ -80,3 +80,19 @@ class batch:
                 b_im[i] = utils.load_image_input(self.test_images_filenames[i])
                 b_lab[i] = utils.load_image_labels(self.test_labels_filenames[i])
             return b_im, b_lab
+
+    def get_batch_test(self,s,e):
+            b_im = np.zeros((e-s, FLAGS.inputImX, FLAGS.inputImY, 3))
+            b_lab = np.zeros((e-s, FLAGS.inputImX, FLAGS.inputImY))
+            print(e,s,e-s)
+            if self.inRAM:
+                for i,idx in enumerate(range(s,e)):
+                    b_im[i] = self.test_images[idx]
+                    b_lab[i] = self.test_labels[idx]
+            else:
+                for i,idx in enumerate(range(s,e)):
+                    print(idx)
+                    b_im[i] = utils.load_image_input(self.test_images_filenames[idx])
+                    b_lab[i] = utils.load_image_labels(self.test_labels_filenames[idx])
+            return b_im, b_lab
+

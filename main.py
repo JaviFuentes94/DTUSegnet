@@ -26,9 +26,10 @@ isCamVid = 1
 if isCamVid:
     num_class = 12
 else:
-    num_class = 37
+    num_class = 38
 depthIncluded  = 0
-inRAM = 1
+inRAM = 0
+batch_size = 5
 
 #Reset
 tf.reset_default_graph()
@@ -80,24 +81,23 @@ segnet.build(images_ph, phase_ph)
 
 ### DEFINING THE OPERATIONS ###
 loss_op = training_ops.calc_loss(segnet.convD5_2, labels_ph, num_class)
-MFB_loss_op = training_ops.calc_MFB_loss(segnet.convD5_2, labels_ph, num_class,FLAGS)
-#MFB_loss_op = loss_op
+#MFB_loss_op = training_ops.calc_MFB_loss(segnet.convD5_2, labels_ph, num_class,FLAGS)
+MFB_loss_op = loss_op
 train_op = training_ops.train_network(loss_op)
 G_acc_op, C_acc_opp, G_accs_op, C_accs_opp  = training_ops.calc_accuracy(segnet.argmax_layer, labels_ph,num_class, phase_ph)
 
 ### BUILDING BATCH and TEST ###
 batch = batch.batch(FLAGS,isCamVid,depthIncluded,inRAM)
-test_im, test_lab = batch.get_test()
-test_len = test_im.shape[0]
 fetches_test = [G_accs_op, C_accs_opp]
 chunk_size = 10
-list_feed_test = []
+list_feed_test_indices = []
+test_len = batch.test_size
 for s in range(0,test_len,chunk_size):
     if s+chunk_size-1 >= test_len:
-        e = test_im.shape[0]
+        e = test_len
     else:
         e = s+chunk_size
-    list_feed_test.append({images_ph: test_im[s:e], labels_ph: test_lab[s:e], phase_ph: 0})
+    list_feed_test_indices.append((s,e))
 
 init =  tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
 saver = tf.train.Saver(tf.global_variables())
@@ -111,7 +111,7 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
     print("number of trainable parameters : ",np.sum([np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()]))
     for i in range(500000):
 
-        imgIn, imgLabel = batch.get_train(5)
+        imgIn, imgLabel = batch.get_train(batch_size)
 
         feed_dict = {images_ph: imgIn, labels_ph: imgLabel, phase_ph: 1}
         fetches_train = [segnet.argmax_layer, merged, train_op, loss_op, MFB_loss_op]
@@ -128,9 +128,11 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
         if batch.get_epoch() > current_epoch:
             print("new epoch")
             current_epoch= batch.get_epoch()
-            C_acc_test = []
             G_acc_test = []
-            for feed_test in list_feed_test:
+            C_acc_test = []
+            for ind in list_feed_test_indices:
+                b_test_im, b_test_lab = batch.get_batch_test(ind[0],ind[1])
+                feed_test = {images_ph: b_test_im, labels_ph: b_test_lab, phase_ph: 0}
                 res = sess.run(fetches_test, feed_dict=feed_test)
                 G_acc_test.append(res[0])
                 C_acc_test.append(res[1])
