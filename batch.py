@@ -11,7 +11,7 @@ FLAGS = tf.app.flags.FLAGS
 class batch:
     def __init__(self,FLAGS,isCamVid = 1,depthIncluded = 0,inRAM = 1):
         start_time = time.time()
-        print(FLAGS.train_images_path,FLAGS.train_labels_path)
+
         self.train_images_filenames = sorted(glob.glob(FLAGS.train_images_path))
         self.train_labels_filenames = sorted(glob.glob(FLAGS.train_labels_path))
         self.test_images_filenames = sorted(glob.glob(FLAGS.test_images_path))
@@ -21,7 +21,7 @@ class batch:
         if depthIncluded:
             self.train_depths_filenames = glob.glob(FLAGS.train_depth_path)
             self.test_depths_filenames = glob.glob(FLAGS.test_depth_path)
-        print(self.train_images_filenames,self.train_labels_filenames)
+
         self.test_size = len(self.test_images_filenames)
         self.train_size = len(self.train_images_filenames)
         self.train_rand_idx = list(range(0,self.train_size))
@@ -57,6 +57,7 @@ class batch:
         b_lab = np.zeros((size, FLAGS.inputImX, FLAGS.inputImY))
         if self.inRAM:
             for i in range(size):
+                #print("i: ", i, " current_batch: ",self.current_batch_train, " size trainrandidx: ", len(self.train_rand_idx))
                 idx = self.train_rand_idx[self.current_batch_train+i]
                 b_im[i] = self.train_images[idx]
                 b_lab[i] = self.train_labels[idx]
@@ -120,3 +121,4 @@ class batch:
                     b_im[i] = utils.load_image_input(self.test_images_filenames[idx])
                     b_lab[i] = utils.load_image_labels(self.test_labels_filenames[idx])
             return b_im, b_lab
+
