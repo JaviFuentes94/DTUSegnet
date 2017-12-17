@@ -31,11 +31,6 @@ class batch:
         self.current_batch_test=0
         self.depthIncluded  = depthIncluded
         self.inRAM = inRAM
-        for i in range(10):
-            test_img = utils.load_image_input(self.train_images_filenames[i])
-            test_lab = utils.load_image_input(self.train_labels_filenames[i])
-            utils.show_image(test_img)
-            utils.show_image(test_lab)
         if inRAM:
             self.train_images = [utils.load_image_input(i) for i in self.train_images_filenames]
             self.train_labels = [utils.load_image_labels(i) for i in self.train_labels_filenames]
@@ -110,7 +105,6 @@ class batch:
     def get_batch_test(self,s,e):
             b_im = np.zeros((e-s, FLAGS.inputImX, FLAGS.inputImY, 3))
             b_lab = np.zeros((e-s, FLAGS.inputImX, FLAGS.inputImY))
-            print(e,s,e-s)
             if self.inRAM:
                 for i,idx in enumerate(range(s,e)):
                     b_im[i] = self.test_images[idx]

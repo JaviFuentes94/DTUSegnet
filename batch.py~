@@ -31,11 +31,6 @@ class batch:
         self.current_batch_test=0
         self.depthIncluded  = depthIncluded
         self.inRAM = inRAM
-        for i in range(10):
-            test_img = utils.load_image_input(self.train_images_filenames[i])
-            test_lab = utils.load_image_input(self.train_labels_filenames[i])
-            utils.show_image(test_img)
-            utils.show_image(test_lab)
         if inRAM:
             self.train_images = [utils.load_image_input(i) for i in self.train_images_filenames]
             self.train_labels = [utils.load_image_labels(i) for i in self.train_labels_filenames]
