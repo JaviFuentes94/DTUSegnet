@@ -4,7 +4,7 @@ import skimage.transform
 import numpy as np
 import tensorflow as tf
 from scipy import misc
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 
 VGG_MEAN = [103.939, 116.779, 123.68]
@@ -75,12 +75,12 @@ def show_image(img):
     # print(img.shape)
     # print('Image type')
     # print(img.dtype)
-    print('Image content')
-    print(img)
-    img = gray_to_RGB(img)
+    #print('Image content')
+    #print(img)
+    #img = gray_to_RGB(img)
 
-    #plt.imshow(img)
-    #plt.show()
+    plt.imshow(img)
+    plt.show()
     return img
 
 
