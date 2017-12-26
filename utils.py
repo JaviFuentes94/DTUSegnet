@@ -117,25 +117,6 @@ def print_prob(prob, file_path):
     return top1
 
 
-def load_image2(path, height=None, width=None):
-    # load image
-    img = skimage.io.imread(path)
-    img = img / 255.0
-    if height is not None and width is not None:
-        ny = height
-        nx = width
-    elif height is not None:
-        ny = height
-        nx = img.shape[1] * ny / img.shape[0]
-    elif width is not None:
-        nx = width
-        ny = img.shape[0] * nx / img.shape[1]
-    else:
-        ny = img.shape[0]
-        nx = img.shape[1]
-    return skimage.transform.resize(img, (ny, nx))
-
-
 def test():
     img = skimage.io.imread("./Data/labels/0006R0_f02070.png")
     show_image(img)
@@ -163,6 +144,21 @@ def rgb2bgr(rgb):
         ])
         assert bgr.get_shape().as_list()[1:] == [FLAGS.inputImX, FLAGS.inputImY, 3]
         return bgr
+
+def show_comparison(n_images, original, groundtruth, result):
+    f, axarr = plt.subplots(n_images, 3, sharex='col', sharey='row')
+    axarr[0,0].set_title('Test images')
+    axarr[0,1].set_title('Ground truth labels')
+    axarr[0,2].set_title('Our implementation')
+    for i in range(0,n_images):
+        axarr[i,0].imshow(original[i])
+        axarr[i,0].axis('off')
+        axarr[i,1].imshow(groundtruth[i])
+        axarr[i,1].axis('off')
+        axarr[i,2].imshow(result[i])
+        axarr[i,2].axis('off')
+    plt.show()
+
 
 def variable_summaries(var):
   """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""

@@ -1,4 +1,4 @@
-tensorflow-vgg/vgg16.npy
+vgg16.npy
 DTUSegnet.pyproj
 DTUSegnet.sln
 debug.py
@@ -8,6 +8,7 @@ Tensorboard/
 __pycache__/
 test.png
 SUNRGBD/
-Models/
 .py~
 WinSCP.exe.lnk
+CAMVIDmodels/
+SUNRGBDmodels/

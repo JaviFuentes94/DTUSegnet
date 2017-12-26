@@ -9,7 +9,11 @@ from random import randint
 FLAGS = tf.app.flags.FLAGS
 
 class batch:
-    def __init__(self,FLAGS,isCamVid = 1,depthIncluded = 0,inRAM = 1):
+    def __init__(self):
+
+        self.depthIncluded  = FLAGS.depthIncluded
+        self.inRAM = FLAGS.inRAM
+
         start_time = time.time()
 
         self.train_images_filenames = sorted(glob.glob(FLAGS.train_images_path))
@@ -18,7 +22,7 @@ class batch:
         self.test_labels_filenames = sorted(glob.glob(FLAGS.test_labels_path))
         self.val_images_filenames = sorted(glob.glob(FLAGS.validation_images_path))
         self.val_labels_filenames = sorted(glob.glob(FLAGS.validation_labels_path))
-        if depthIncluded:
+        if self.depthIncluded:
             self.train_depths_filenames = glob.glob(FLAGS.train_depth_path)
             self.test_depths_filenames = glob.glob(FLAGS.test_depth_path)
 
@@ -29,15 +33,13 @@ class batch:
         self.epoch = 0
         self.current_batch_train=0
         self.current_batch_test=0
-        self.depthIncluded  = depthIncluded
-        self.inRAM = inRAM
-        if inRAM:
+        if self.inRAM:
             self.train_images = [utils.load_image_input(i) for i in self.train_images_filenames]
             self.train_labels = [utils.load_image_labels(i) for i in self.train_labels_filenames]
             self.test_images = np.asarray([utils.load_image_input(i) for i in self.test_images_filenames])
             self.test_labels = np.asarray([utils.load_image_labels(i) for i in self.test_labels_filenames])
 
-            if depthIncluded:
+            if self.depthIncluded:
                 self.train_depths = [utils.load_image_input(i) for i in self.train_depths_filenames]
                 self.test_depths = np.asarray([utils.load_image_input(i) for i in self.test_depths_filenames])
         print(("build batch finished: %ds" % (time.time() - start_time)))

@@ -12,12 +12,12 @@ FLAGS = tf.app.flags.FLAGS
 
 class SegNet(object):
     """Builds the SegNet model"""
-    def __init__(self, im_rgb, phase):
+    def __init__(self, im_rgbd, phase):
         """
-        Builds the regular SegNet model
+        Builds the SegNet model including depth information
 
         Args:
-            im_rgb: rgb image placeholder [batch, height, width, 3] values scaled [0, 1]
+            im_rgbd: rgb+depth image placeholder [batch, height, width, 4] values scaled [0, 1]
             num_class: number of segmentation classes
             vgg16_npy_path: path to the weights of the vgg16 model
         """
@@ -25,7 +25,7 @@ class SegNet(object):
         #Loads the weights from the model
 
         self.data_dict = np.load(FLAGS.vgg16_npy_path, encoding='latin1').item()
-        print("npy file loaded")
+        print("Vgg16 weights loaded")
 
         self.num_class = FLAGS.num_class
         self.phase = phase
@@ -38,7 +38,7 @@ class SegNet(object):
 
         #ENCODER
 
-        self.convE1_1 = layers.conv_layer(im_bgr, "conv1_1", self.data_dict, phase)
+        self.convE1_1 = layers.first_depth_conv_layer(im_bgr, "conv1_1", self.data_dict, phase)
         self.convE1_2 = layers.conv_layer(self.convE1_1, "conv1_2", self.data_dict, phase)
         self.pool1, self.argmax1 = layers.max_pool(self.convE1_2, 'pool1')
 
@@ -103,5 +103,5 @@ class SegNet(object):
         print(("build SegNet finished: %ds" % (time.time() - start_time)))
 
     def load_model(self,saver,sess):
-        modelPath= "./Models/model.ckpt-75"
+        modelPath= "./RUNRGBDModels/model.ckpt-12"
         saver.restore(sess,modelPath)

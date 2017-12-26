@@ -1,13 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Oct 25 22:17:52 2017
-
-@author: Szymon
-"""
-
 import tensorflow as tf
 import numpy as np
-import time
 import os
 import sys
 
@@ -21,47 +13,17 @@ import SegNet as sn
 import utils
 import training_ops
 import batch
+import SegNetFlags
+
+FLAGS = tf.app.flags.FLAGS
 ### DEFINING THE RUNNING OPTIONS ###
-isCamVid = 1
-if isCamVid:
-    num_class = 12
-    data_dir = './CamVid/'
-    labels_format = 'png'
-    image_format = 'png'
-else:
-    num_class = 38
-    data_dir = './SUNRGBD/'
-    labels_format = 'png'
-    image_format = 'jpg'
-depthIncluded  = 0
+
 inRAM = 0
 batch_size = 5
 
 #Reset
 tf.reset_default_graph()
-### DEFINING THE FLAGS ###
-FLAGS = tf.app.flags.FLAGS
-#224,224 // 360,480
-tf.app.flags.DEFINE_integer('inputImX',352, 'Size of the x axis of the input image')
-tf.app.flags.DEFINE_integer('inputImY',480, 'Size of the y axis of the input image')
-tf.app.flags.DEFINE_bool('isTraining',True, 'Size of the y axis of the input image')
-tf.app.flags.DEFINE_string('test_images_path', data_dir + 'test_images/*' + image_format, 'Path for the test images')
-tf.app.flags.DEFINE_string('test_labels_path', data_dir + 'test_labels/*' + labels_format, 'Path for the test labels')
 
-tf.app.flags.DEFINE_string('train_images_path', data_dir + 'train_images/*' + image_format, 'Path for the train images')
-tf.app.flags.DEFINE_string('train_labels_path', data_dir + 'train_labels/*' + labels_format, 'Path for the train labels')
-
-tf.app.flags.DEFINE_string('validation_images_path', data_dir + 'validation_images/*png', 'Path for the validation images')
-tf.app.flags.DEFINE_string('validation_labels_path', data_dir + 'validation_labels/*png', 'Path for the validation labels')
-
-tf.app.flags.DEFINE_string('MBF_weights_path',data_dir + 'class_weights.txt','path to the MBF weights')
-if depthIncluded:
-    tf.app.flags.DEFINE_string('test_depth_path', data_dir +'test_depth/*.png', 'Path for the test depths')
-    tf.app.flags.DEFINE_string('train_depth_path', data_dir +'train_depth/*.png', 'Path for the train depths')
-
-timestr = time.strftime("%Y%m%d-%H%M%S")
-
-tensorboard_path=os.path.join("./Tensorboard", timestr)
 
 ### DEFINING THE PLACEHOLDERS ###
 images_ph = tf.placeholder(tf.float32, [None, FLAGS.inputImX, FLAGS.inputImY, 3])
@@ -69,18 +31,17 @@ labels_ph= tf.placeholder(tf.int32, [None, FLAGS.inputImX, FLAGS.inputImY])
 phase_ph = tf.placeholder(tf.bool, name='phase')
 
 ### BUILDING THE NETWORK ###
-segnet = sn.SegNet(num_class = num_class, depthIncluded = depthIncluded)
-segnet.build(images_ph, phase_ph)
+segnet = sn.SegNet(im_rgb = images_ph, phase=phase_ph)
 
 ### DEFINING THE OPERATIONS ###
-loss_op = training_ops.calc_loss(segnet.convD5_2, labels_ph, num_class)
+loss_op = training_ops.calc_loss(segnet.convD5_2, labels_ph, FLAGS.num_class)
 #MFB_loss_op = training_ops.calc_MFB_loss(segnet.convD5_2, labels_ph, num_class,FLAGS)
 MFB_loss_op = loss_op
 train_op = training_ops.train_network(loss_op)
-G_acc_op, C_acc_opp, G_accs_op, C_accs_opp  = training_ops.calc_accuracy(segnet.argmax_layer, labels_ph,num_class, phase_ph)
+G_acc_op, C_acc_opp, G_accs_op, C_accs_opp  = training_ops.calc_accuracy(segnet.argmax_layer, labels_ph, FLAGS.num_class, phase_ph)
 
 ### BUILDING BATCH and TEST ###
-batch = batch.batch(FLAGS,isCamVid,depthIncluded,inRAM)
+batch = batch.batch()
 fetches_test = [G_accs_op, C_accs_opp]
 chunk_size = 10
 list_feed_test_indices = []
@@ -97,7 +58,7 @@ saver = tf.train.Saver(tf.global_variables())
 print("running the train loop")
 with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu_memory_fraction=0.9)))) as sess:
     merged = tf.summary.merge_all()
-    tensorboard_writer = tf.summary.FileWriter(tensorboard_path, sess.graph) #Saves the graph in the Tensorboard folder
+    tensorboard_writer = tf.summary.FileWriter(FLAGS.tensorboard_path, sess.graph) #Saves the graph in the Tensorboard folder
     sess.run(init)
     current_epoch = 0
 
