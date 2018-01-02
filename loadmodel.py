@@ -92,7 +92,7 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
     segnet.load_model(saver, sess)
     #Take some images and show them
     n_images=2
-    im_visual, label_visual = batch.get_visualization_images(nImages=n_images)
+    im_visual, label_visual = batch.get_visualization_images(nImages=n_images,datasetType="TRAIN")
     fetches_visualization = [segnet.argmax_layer]
     feed_dict = {images_ph: im_visual, labels_ph: label_visual, phase_ph: 0}
     im_result = sess.run(fetches_visualization, feed_dict=feed_dict)

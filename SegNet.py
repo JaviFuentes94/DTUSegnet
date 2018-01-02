@@ -103,5 +103,5 @@ class SegNet(object):
         print(("build SegNet finished: %ds" % (time.time() - start_time)))
 
     def load_model(self,saver,sess):
-        modelPath= "./Models/model.ckpt-75"
+        modelPath= "./CAMVIDModels/model.ckpt-105"
         saver.restore(sess,modelPath)

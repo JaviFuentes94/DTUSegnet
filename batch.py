@@ -98,11 +98,21 @@ class batch:
         self.val_labels = np.asarray([utils.load_image_labels(i) for i in self.val_labels_filenames])
         return self.val_images, self.val_labels
 
-    def get_visualization_images(self, nImages):
+    def get_visualization_images(self, nImages, datasetType):
         '''Gets nImages random images from the test set to show'''
-        indexes=[randint(1,self.test_size-1) for i in range(0,nImages)]
-        return self.test_images[indexes],self.test_labels[indexes]
-
+        if datasetType=="TRAIN":
+            input_imgs=np.asarray(self.train_images)
+            label_imgs=np.asarray(self.train_labels)
+        elif datasetType=="TEST":
+            input_imgs=self.test_images
+            label_imgs=self.test_labels
+        elif datasetType=="VALIDATION":
+            input_imgs=self.val_images
+            label_imgs=self.val_labels
+        else:
+            return
+        indexes=[randint(1,len(input_imgs)-1) for i in range(0,nImages)]
+        return input_imgs[indexes],label_imgs[indexes]
 
     def get_batch_test(self,s,e):
             b_im = np.zeros((e-s, FLAGS.inputImX, FLAGS.inputImY, 3))

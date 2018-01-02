@@ -147,7 +147,7 @@ def rgb2bgr(rgb):
 
 def show_comparison(n_images, original, groundtruth, result):
     f, axarr = plt.subplots(n_images, 3, sharex='col', sharey='row')
-    axarr[0,0].set_title('Test images')
+    axarr[0,0].set_title('Input images')
     axarr[0,1].set_title('Ground truth labels')
     axarr[0,2].set_title('Our implementation')
     for i in range(0,n_images):
