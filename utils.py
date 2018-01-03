@@ -117,7 +117,7 @@ def show_image(img):
     transform a labels predictions in constant colored image
 '''
 def gray_to_RGB(img):
-    with open("Data/colors.txt") as file:
+    with open("CamVid/colors.txt") as file:
         colors = []
         for line in file.readlines():
             l = line.split()
@@ -193,9 +193,9 @@ def plot_comparison(n_images, original, groundtruth, result,datasetType):
     for i in range(0,n_images):
         axarr[i,0].imshow(original[i])
         axarr[i,0].axis('off')
-        axarr[i,1].imshow(groundtruth[i])
+        axarr[i,1].imshow(gray_to_RGB(groundtruth[i]))
         axarr[i,1].axis('off')
-        axarr[i,2].imshow(result[i])
+        axarr[i,2].imshow(gray_to_RGB(result[i]))
         axarr[i,2].axis('off')
     plt.show()
 '''

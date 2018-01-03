@@ -123,7 +123,7 @@ class batch:
         label_visual = np.zeros((nImages, FLAGS.inputImX, FLAGS.inputImY))
         for i in range(nImages):
             if self.depthIncluded:
-                feed[i] = utils.load_image_depth_input(self.test_images_filenames[idx[i]],self.test_depths_filenames[idx[i]])
+                feed[i] = utils.load_image_depth_input(input_imgs[idx[i]],depth_imgs[idx[i]])
                 im_visual[i] = utils.load_image_input(input_imgs[idx[i]])
             else:
                 im_visual[i] = utils.load_image_input(input_imgs[idx[i]])
