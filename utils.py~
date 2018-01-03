@@ -179,7 +179,7 @@ def show_comparison(datasetType, saver, sess, batch, segnet, images_ph, labels_p
     im_result = sess.run(fetches_visualization, feed_dict=feed_dict)
     im_result_arr=np.array(im_result).squeeze()
 
-    plot_comparison(n_images=n_images,original=im_visual,groundtruth=label_visual,result=im_result_arr,datasetType=datasetType)
+    utils.plot_comparison(n_images=n_images,original=im_visual,groundtruth=label_visual,result=im_result_arr,datasetType=datasetType)
 
 
 '''

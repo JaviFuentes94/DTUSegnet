@@ -37,7 +37,7 @@ class batch:
             self.train_labels = np.asarray([utils.load_image_labels(i) for i in self.train_labels_filenames])
             self.test_labels = np.asarray([utils.load_image_labels(i) for i in self.test_labels_filenames])
 
-            if self.depthIncluded:
+            if depthIncluded:
                 self.train_images = np.asarray([utils.load_image_depth_input(path,self.train_depths_filenames[i]) for i,path in enumerate(self.train_images_filenames)])
                 self.test_images = np.asarray([utils.load_image_depth_input(path,self.test_depths_filenames[i]) for i,path in enumerate(self.test_images_filenames)])
             else:

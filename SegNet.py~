@@ -86,11 +86,20 @@ class SegNet(object):
         self.convD5_1 = layers.conv_layer_decoder(self.upsample5, "convD5_1", 64, phase)
         self.convD5_2 = layers.conv_layer_decoder(self.convD5_1, "convD5_2", self.num_class, phase)
 
+        #Calculate softmax - this might be not used as we use softmax_cross_entropy_with_logits
+        #for loss calculation
+        #this for each pixel goes through num_class classes
         with tf.name_scope("softmax"):
             self.softmax_layer = tf.nn.softmax(self.convD5_2)
+        #print("softmax_layer", self.softmax_layer.shape)
+        #Create an image with classicifactions might be not neccessary as well
+        #this for each pixel returns the class with biggest probability
         with tf.name_scope("argmax"):
             self.argmax_layer = tf.argmax(self.softmax_layer, 3)
             img_summary = tf.summary.image('Result_image', tf.expand_dims(tf.to_float(self.argmax_layer), 3))
+            #print("armax_layer", self.argmax_layer.shape)
+            #img = gray_to_RGB(tf.to_float(self.argmax_layer[0]))
+            #img_summary = tf.summary.image('Result image',img)
         print(("build SegNet finished: %ds" % (time.time() - start_time)))
 
     def load_model(self,saver,sess):

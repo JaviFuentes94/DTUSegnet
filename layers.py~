@@ -122,8 +122,8 @@ def first_depth_conv_layer(input_layer, name, data_dict, phase):
         relu = tf.nn.relu(batch_norm_layer(bias, phase))
 
         #print(name)
-        #print(conv.shape)
-        #print(filt.shape)
+        print(conv.shape)
+        print(filt.shape)
 
         return relu
 

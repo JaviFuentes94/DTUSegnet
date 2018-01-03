@@ -23,7 +23,7 @@ def define_FLAGS(isCamVid=True , depthIncluded = False, inRAM = True):
         tf.app.flags.DEFINE_integer('num_class',38, 'Number of classes in the dataset')
         if depthIncluded:
             tf.app.flags.DEFINE_integer('n_channels',4, 'Number of channels for the network')
-            tf.app.flags.DEFINE_string('model_path', "./SUNRGBDModels/depth/model.ckpt-10" , 'path to load the model')
+            tf.app.flags.DEFINE_string('model_path', "./SUNRGBDModels/depth2/model.ckpt-10" , 'path to load the model')
         else:
             tf.app.flags.DEFINE_string('model_path', "./SUNRGBDModels/model.ckpt-12" , 'path to load the model')
             tf.app.flags.DEFINE_integer('n_channels',3, 'Number of channels for the network')

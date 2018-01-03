@@ -32,13 +32,13 @@ class SegNet(object):
 
         start_time = time.time()
         print("build SegNet started")
-
-        im_bgr=rgb2bgr(im_rgb)
-        im_bgr= tf.nn.local_response_normalization(im_bgr)
+        im_bgr = rgb2bgr(im_rgbd[:,:,:,0:3])
+        im_bgrd = tf.concat([im_bgr, tf.expand_dims(im_rgbd[:,:,:,3],3)],axis=3)
+        im_bgrd= tf.nn.local_response_normalization(im_bgrd)
 
         #ENCODER
 
-        self.convE1_1 = layers.first_depth_conv_layer(im_bgr, "conv1_1", self.data_dict, phase)
+        self.convE1_1 = layers.first_depth_conv_layer(im_bgrd, "conv1_1", self.data_dict, phase)
         self.convE1_2 = layers.conv_layer(self.convE1_1, "conv1_2", self.data_dict, phase)
         self.pool1, self.argmax1 = layers.max_pool(self.convE1_2, 'pool1')
 
@@ -103,5 +103,5 @@ class SegNet(object):
         print(("build SegNet finished: %ds" % (time.time() - start_time)))
 
     def load_model(self,saver,sess):
-        modelPath= "./RUNRGBDModels/model.ckpt-12"
+        modelPath= FLAGS.model_path
         saver.restore(sess,modelPath)

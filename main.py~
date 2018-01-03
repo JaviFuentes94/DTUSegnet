@@ -63,9 +63,7 @@ with tf.Session(config=tf.ConfigProto(gpu_options=(tf.GPUOptions(per_process_gpu
     merged = tf.summary.merge_all()
     tensorboard_writer = tf.summary.FileWriter(FLAGS.tensorboard_path, sess.graph) #Saves the graph in the Tensorboard folder
     sess.run(init)
-    #current_epoch = 4
-    #batch.epoch = 
-    #segnet.load_model(saver, sess)
+    segnet.load_model(saver, sess)
     print("number of trainable parameters : ",np.sum([np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()]))
     for i in range(500000):
 
