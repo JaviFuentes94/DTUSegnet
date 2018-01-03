@@ -10,11 +10,11 @@ import layers
 
 FLAGS = tf.app.flags.FLAGS
 
-class SegNet(object):
-    """Builds the SegNet model"""
+class SegDepth(object):
+    """Builds the SegDepth model"""
     def __init__(self, im_rgbd, phase):
         """
-        Builds the SegNet model including depth information
+        Builds the SegDepth model including depth information
 
         Args:
             im_rgbd: rgb+depth image placeholder [batch, height, width, 4] values scaled [0, 1]
@@ -31,7 +31,7 @@ class SegNet(object):
         self.phase = phase
 
         start_time = time.time()
-        print("build SegNet started")
+        print("build SegDepth started")
         im_bgr = rgb2bgr(im_rgbd[:,:,:,0:3])
         im_bgrd = tf.concat([im_bgr, tf.expand_dims(im_rgbd[:,:,:,3],3)],axis=3)
         im_bgrd= tf.nn.local_response_normalization(im_bgrd)
@@ -100,7 +100,7 @@ class SegNet(object):
             #print("armax_layer", self.argmax_layer.shape)
             #img = gray_to_RGB(tf.to_float(self.argmax_layer[0]))
             #img_summary = tf.summary.image('Result image',img)
-        print(("build SegNet finished: %ds" % (time.time() - start_time)))
+        print(("build SegDepth finished: %ds" % (time.time() - start_time)))
 
     def load_model(self,saver,sess):
         modelPath= FLAGS.model_path
